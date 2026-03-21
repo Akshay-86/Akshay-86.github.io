@@ -18,3 +18,9 @@ html.dark, html.dark body {
 #hero, #about, #skills, #projects, #experience, #achievements, #contact {
   scroll-margin-top: 5rem;
 }
+
+/* Banner slide-down animation */
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
