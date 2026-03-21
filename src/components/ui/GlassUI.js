@@ -1,26 +1,69 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ScrollReveal from "../ScrollReveal";
 
-export default function GlassUI({ publicProjects, privateProjects }) {
+export default function GlassUI({ publicProjects, privateProjects, controls }) {
+  const { themeMode, setThemeMode, currentStyle, setCurrentStyle } = controls || {};
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
-  const featuredProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 6);
+  const sortedProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+  const [showAll, setShowAll] = useState(false);
+  const visibleProjects = showAll ? sortedProjects : sortedProjects.slice(0, 6);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const NAV = ["about", "skills", "projects", "experience", "achievements", "contact"];
+  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); setMobileMenuOpen(false); };
 
   return (
-    <div className="min-h-screen relative font-sans text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-[#030712] transition-colors duration-1000 overflow-hidden">
+    <div className="min-h-screen relative font-sans text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-[#030712] transition-colors duration-1000">
       
       {/* Animated Gradient Background */}
       <div className="fixed inset-0 z-0 opacity-60 dark:opacity-30 pointer-events-none transition-opacity duration-1000">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-300 dark:bg-purple-900 mix-blend-multiply filter blur-[100px] animate-[pulse_8s_ease-in-out_infinite]"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-300 dark:bg-blue-900 mix-blend-multiply filter blur-[120px] animate-[pulse_10s_ease-in-out_infinite_animation-delay-2s]"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[70%] h-[70%] rounded-full bg-pink-300 dark:bg-pink-900 mix-blend-multiply filter blur-[150px] animate-[pulse_12s_ease-in-out_infinite_animation-delay-4s]"></div>
+        <div className="absolute top-[20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-300 dark:bg-blue-900 mix-blend-multiply filter blur-[120px] animate-[pulse_10s_ease-in-out_infinite]"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[70%] h-[70%] rounded-full bg-pink-300 dark:bg-pink-900 mix-blend-multiply filter blur-[150px] animate-[pulse_12s_ease-in-out_infinite]"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 flex flex-col gap-32 pb-40">
+      {/* Glass Nav */}
+      <nav className="sticky top-0 z-50 bg-white/30 dark:bg-black/30 backdrop-blur-2xl border-b border-white/20 dark:border-white/5">
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-14">
+          <span className="text-sm font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Akshay.</span>
+          <div className="hidden md:flex items-center gap-1">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="px-3 py-1 text-[11px] uppercase tracking-widest font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/30 dark:hover:bg-white/10 rounded-full transition-all">{id}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setThemeMode?.(themeMode === "dark" ? "light" : "dark")} className="w-8 h-8 flex items-center justify-center rounded-full text-xs bg-white/40 dark:bg-white/10 border border-white/40 dark:border-white/10 backdrop-blur-md hover:bg-white/60 dark:hover:bg-white/20 transition-all" title="Toggle theme">
+              {themeMode === "dark" ? "☀️" : "🌙"}
+            </button>
+            <select value={currentStyle} onChange={(e) => setCurrentStyle?.(e.target.value)} className="bg-white/40 dark:bg-white/10 border border-white/40 dark:border-white/10 backdrop-blur-md text-[11px] font-medium text-slate-600 dark:text-slate-300 outline-none cursor-pointer rounded-full px-3 py-1.5 hover:bg-white/60 dark:hover:bg-white/20 transition-all">
+              <option value="minimal">Minimal</option>
+              <option value="bento">Bento</option>
+              <option value="glass">Glass</option>
+              <option value="cyber">Cyber</option>
+              <option value="terminal">Terminal</option>
+            </select>
+            {/* Hamburger */}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden w-8 h-8 flex flex-col items-center justify-center gap-1 rounded-full bg-white/40 dark:bg-white/10 border border-white/40 dark:border-white/10 backdrop-blur-md hover:bg-white/60 dark:hover:bg-white/20 transition-all">
+              <span className={`block w-3.5 h-0.5 bg-slate-600 dark:bg-slate-300 transition-all ${mobileMenuOpen ? "rotate-45 translate-y-[3px]" : ""}`}></span>
+              <span className={`block w-3.5 h-0.5 bg-slate-600 dark:bg-slate-300 transition-all ${mobileMenuOpen ? "-rotate-45 -translate-y-[3px]" : ""}`}></span>
+            </button>
+          </div>
+        </div>
+        {/* Mobile dropdown */}
+        <div className={`md:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="bg-white/50 dark:bg-black/50 backdrop-blur-2xl border-t border-white/20 dark:border-white/5 px-6 py-3 flex flex-col gap-1">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="text-left py-2.5 text-sm font-medium uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">{id}</button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 flex flex-col gap-32 pb-40 pt-12">
         
         {/* 1. Hero */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center">
+        <section id="hero" className="min-h-[70vh] flex flex-col justify-center items-center text-center">
           <ScrollReveal animation="blur-in" duration={1200}>
             <div className="w-32 h-32 rounded-3xl bg-gradient-to-tr from-blue-500 to-purple-500 mx-auto mb-8 shadow-2xl flex items-center justify-center text-white text-6xl font-light">
               A
@@ -35,7 +78,7 @@ export default function GlassUI({ publicProjects, privateProjects }) {
               I build simple, efficient, and highly scalable web applications.
             </p>
             <div className="flex gap-6 justify-center">
-              <button className="px-8 py-4 bg-slate-900/10 dark:bg-white/10 hover:bg-slate-900/20 dark:hover:bg-white/20 backdrop-blur-md text-slate-900 dark:text-white border border-slate-900/20 dark:border-white/20 font-bold rounded-2xl shadow-lg transition-all hover:-translate-y-1" onClick={() => window.scrollTo({top: document.getElementById('projects').offsetTop, behavior: 'smooth'})}>
+              <button className="px-8 py-4 bg-slate-900/10 dark:bg-white/10 hover:bg-slate-900/20 dark:hover:bg-white/20 backdrop-blur-md text-slate-900 dark:text-white border border-slate-900/20 dark:border-white/20 font-bold rounded-2xl shadow-lg transition-all hover:-translate-y-1" onClick={() => document.getElementById('projects')?.scrollIntoView({behavior: 'smooth'})}>
                 View Projects
               </button>
             </div>
@@ -43,7 +86,7 @@ export default function GlassUI({ publicProjects, privateProjects }) {
         </section>
 
         {/* 2. About Me */}
-        <section className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <section id="about" className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           <ScrollReveal animation="fade-up">
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-8 flex items-center gap-4">
               <span className="w-8 h-px bg-slate-400 dark:bg-slate-600"></span> 01. About Me
@@ -60,7 +103,7 @@ export default function GlassUI({ publicProjects, privateProjects }) {
         </section>
 
         {/* 3. Skills */}
-        <section className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+        <section id="skills" className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
           <ScrollReveal animation="fade-up">
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-12 flex items-center gap-4">
               <span className="w-8 h-px bg-slate-400 dark:bg-slate-600"></span> 02. Technical Arsenal
@@ -97,8 +140,8 @@ export default function GlassUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
           
           <div className="flex flex-col gap-12">
-            {featuredProjects.map((project, idx) => (
-               <ScrollReveal key={project.id} animation="blur-in" delay={50 * idx} duration={1000} className="w-full">
+            {visibleProjects.map((project, idx) => (
+               <ScrollReveal key={project.id} animation="fade-up" delay={100 * idx} duration={800} className="w-full">
                   <div className="flex flex-col gap-8 md:flex-row md:gap-12 bg-white/40 dark:bg-black/30 border border-white/60 dark:border-white/10 p-8 md:p-12 rounded-[3rem] backdrop-blur-2xl relative overflow-hidden group hover:border-white/80 dark:hover:border-white/20 transition-colors duration-500 shadow-xl">
                      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/20 dark:from-indigo-500/10 to-transparent blur-3xl -z-10 rounded-full"></div>
                      
@@ -107,11 +150,17 @@ export default function GlassUI({ publicProjects, privateProjects }) {
                         <h3 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">{project.name}</h3>
                         <p className="text-slate-600 dark:text-slate-400 font-light leading-relaxed mb-8 text-lg">{project.description || "Foundational exploration module."}</p>
                         
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                            <span className="px-4 py-2 bg-white/50 dark:bg-white/5 rounded-full text-xs text-slate-800 dark:text-white uppercase tracking-widest font-mono border border-white/50 dark:border-white/10">
                               {project.language || "Docs"}
                            </span>
                         </div>
+
+                        {project.html_url && (
+                          <a href={project.html_url} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-white transition-colors group">
+                            View Repository <span className="group-hover:translate-x-1 transition-transform">→</span>
+                          </a>
+                        )}
                      </div>
 
                      <div className="w-full md:w-2/3 border-t md:border-t-0 md:border-l border-slate-200 dark:border-white/10 pt-8 md:pt-0 md:pl-12">
@@ -141,10 +190,22 @@ export default function GlassUI({ publicProjects, privateProjects }) {
                </ScrollReveal>
             ))}
           </div>
+
+          {/* Show More / Show Less */}
+          {sortedProjects.length > 6 && (
+            <div className="text-center mt-16">
+              <button 
+                onClick={() => setShowAll(!showAll)}
+                className="px-8 py-4 bg-slate-900/10 dark:bg-white/10 hover:bg-slate-900/20 dark:hover:bg-white/20 backdrop-blur-md text-slate-900 dark:text-white border border-slate-900/20 dark:border-white/20 font-bold rounded-2xl shadow-lg transition-all hover:-translate-y-1"
+              >
+                {showAll ? `Show Less ↑` : `Show More (${sortedProjects.length - 6} more) ↓`}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* 5. Experience */}
-        <section className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+        <section id="experience" className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
           <ScrollReveal animation="fade-up">
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-12 flex items-center gap-4">
               <span className="w-8 h-px bg-slate-400 dark:bg-slate-600"></span> 04. Experience & Learning
@@ -172,7 +233,7 @@ export default function GlassUI({ publicProjects, privateProjects }) {
         </section>
 
         {/* 6. Achievements */}
-        <section className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+        <section id="achievements" className="bg-white/40 dark:bg-black/20 backdrop-blur-2xl border border-white/60 dark:border-white/10 p-12 md:p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
           <ScrollReveal animation="fade-up">
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-12 flex items-center gap-4">
               <span className="w-8 h-px bg-slate-400 dark:bg-slate-600"></span> 05. Achievements
@@ -201,7 +262,7 @@ export default function GlassUI({ publicProjects, privateProjects }) {
               I'm currently looking for new opportunities. Whether you have a question or just want to collaborate on something amazing, my inbox is open.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
-               <a href="mailto:hello@example.com" className="px-10 py-5 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-2xl w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 text-lg">
+               <a href="mailto:nalliakshaykumar@gmail.com" className="px-10 py-5 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-2xl w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 text-lg">
                  Say Hello
                </a>
                <button className="px-10 py-5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-bold rounded-2xl w-full sm:w-auto transition-all hover:-translate-y-1 text-lg">
@@ -210,9 +271,9 @@ export default function GlassUI({ publicProjects, privateProjects }) {
             </div>
             
             <div className="flex justify-center gap-12 mt-24 pt-12 border-t border-white/20">
-               <a href="#" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">GitHub</a>
-               <a href="#" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">LinkedIn</a>
-               <a href="#" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">Twitter</a>
+               <a href="https://github.com/Akshay-86" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">GitHub</a>
+               <a href="https://www.linkedin.com/in/nalliakshaykumar/" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">LinkedIn</a>
+               <a href="https://www.instagram.com/mr_mirk_rex" className="font-mono text-xs tracking-widest text-white/60 hover:text-white transition-colors uppercase">Instagram</a>
             </div>
           </ScrollReveal>
         </section>

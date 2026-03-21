@@ -1,17 +1,60 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ScrollReveal from "../ScrollReveal";
 
-export default function MinimalUI({ publicProjects, privateProjects }) {
+export default function MinimalUI({ publicProjects, privateProjects, controls }) {
+  const { themeMode, setThemeMode, currentStyle, setCurrentStyle } = controls || {};
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
-  const featuredProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 6);
+  const sortedProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+  const [showAll, setShowAll] = useState(false);
+  const visibleProjects = showAll ? sortedProjects : sortedProjects.slice(0, 6);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const NAV = ["about", "skills", "projects", "experience", "achievements", "contact"];
+  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); setMobileMenuOpen(false); };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#030712] text-slate-800 dark:text-neutral-100 font-sans selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-black pb-32 transition-colors duration-500">
       
+      {/* Minimal Nav */}
+      <nav className="sticky top-0 z-50 bg-slate-50/80 dark:bg-[#030712]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-neutral-800/50">
+        <div className="max-w-4xl mx-auto px-6 flex items-center justify-between h-12">
+          <span className="text-sm font-black tracking-tight text-slate-900 dark:text-white">A<span className="text-blue-500">.</span></span>
+          <div className="hidden md:flex items-center gap-6">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="text-[11px] uppercase tracking-widest font-medium text-slate-400 dark:text-neutral-500 hover:text-slate-900 dark:hover:text-white transition-colors">{id}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setThemeMode?.(themeMode === "dark" ? "light" : "dark")} className="w-7 h-7 flex items-center justify-center rounded-md text-xs text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors" title="Toggle theme">
+              {themeMode === "dark" ? "☀️" : "🌙"}
+            </button>
+            <select value={currentStyle} onChange={(e) => setCurrentStyle?.(e.target.value)} className="bg-transparent text-[10px] uppercase tracking-widest font-medium text-slate-400 dark:text-neutral-500 outline-none cursor-pointer border-none">
+              <option value="minimal">Minimal</option>
+              <option value="bento">Bento</option>
+              <option value="glass">Glass</option>
+              <option value="cyber">Cyber</option>
+              <option value="terminal">Terminal</option>
+            </select>
+            {/* Hamburger */}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden w-7 h-7 flex flex-col items-center justify-center gap-1 rounded-md hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors">
+              <span className={`block w-3.5 h-0.5 bg-slate-500 dark:bg-neutral-400 transition-all ${mobileMenuOpen ? "rotate-45 translate-y-[3px]" : ""}`}></span>
+              <span className={`block w-3.5 h-0.5 bg-slate-500 dark:bg-neutral-400 transition-all ${mobileMenuOpen ? "-rotate-45 -translate-y-[3px]" : ""}`}></span>
+            </button>
+          </div>
+        </div>
+        {/* Mobile dropdown */}
+        <div className={`md:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="bg-slate-50/95 dark:bg-[#030712]/95 backdrop-blur-xl border-t border-slate-200/50 dark:border-neutral-800/50 px-6 py-3 flex flex-col gap-1">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="text-left py-2 text-sm font-medium uppercase tracking-widest text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white transition-colors">{id}</button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
       {/* 1. Hero / Introduction */}
-      <section className="max-w-4xl mx-auto px-6 min-h-[85vh] flex flex-col justify-center">
+      <section id="hero" className="max-w-4xl mx-auto px-6 min-h-[85vh] flex flex-col justify-center pt-16">
         <ScrollReveal animation="fade-right" delay={100}>
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 leading-none text-slate-900 dark:text-white">
             Akshay.
@@ -27,10 +70,10 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={300}>
           <div className="flex gap-4">
-            <button className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1" onClick={() => window.scrollTo({top: document.getElementById('projects').offsetTop, behavior: 'smooth'})}>
+            <button className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1" onClick={() => document.getElementById('projects')?.scrollIntoView({behavior: 'smooth'})}>
               View Projects
             </button>
-            <button className="px-8 py-3 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white font-bold rounded-lg border border-slate-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1" onClick={() => window.scrollTo({top: document.getElementById('contact').offsetTop, behavior: 'smooth'})}>
+            <button className="px-8 py-3 bg-white dark:bg-neutral-900 text-slate-900 dark:text-white font-bold rounded-lg border border-slate-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1" onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}>
               Contact Me
             </button>
           </div>
@@ -38,7 +81,7 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
       </section>
 
       {/* 2. About Me */}
-      <section className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
+      <section id="about" className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
         <ScrollReveal animation="fade-up">
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-8">01. About Me</h2>
           <div className="text-xl md:text-2xl font-light leading-relaxed text-slate-600 dark:text-neutral-400 space-y-6">
@@ -53,7 +96,7 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
       </section>
 
       {/* 3. Skills */}
-      <section className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
+      <section id="skills" className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
         <ScrollReveal animation="fade-up">
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-12">02. Technical Arsenal</h2>
           
@@ -80,7 +123,7 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
         </ScrollReveal>
       </section>
 
-      {/* 4. Projects ⭐ */}
+      {/* 4. Projects */}
       <section id="projects" className="max-w-4xl mx-auto px-6 pt-24 pb-12 border-t border-slate-200 dark:border-neutral-800">
         <ScrollReveal animation="fade-up">
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-4">03. Case Studies</h2>
@@ -88,7 +131,7 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
         </ScrollReveal>
 
         <div className="flex flex-col gap-0">
-          {featuredProjects.map((project, idx) => (
+          {visibleProjects.map((project, idx) => (
             <ScrollReveal key={project.id} animation="fade-up" duration={1000} className="w-full">
               <div className="min-h-[80vh] flex flex-col justify-center py-24 md:py-40 border-b border-slate-200 dark:border-neutral-800 last:border-0 relative">
                  <div className="absolute top-32 left-0 text-[8rem] md:text-[14rem] font-black text-slate-200 dark:text-neutral-900 tracking-tighter -z-10 leading-none pointer-events-none select-none">
@@ -147,14 +190,26 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
               </div>
             </ScrollReveal>
           ))}
-          {featuredProjects.length === 0 && (
+          {sortedProjects.length === 0 && (
             <div className="text-slate-400 dark:text-neutral-600 font-light text-xl">No works archived yet.</div>
           )}
         </div>
+
+        {/* Show More / Show Less */}
+        {sortedProjects.length > 6 && (
+          <div className="text-center mt-16">
+            <button 
+              onClick={() => setShowAll(!showAll)}
+              className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+            >
+              {showAll ? `Show Less ↑` : `Show More (${sortedProjects.length - 6} more) ↓`}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* 5. Experience / Learning */}
-      <section className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
+      <section id="experience" className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
         <ScrollReveal animation="fade-up">
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-16">04. Experience & Learning</h2>
 
@@ -180,7 +235,7 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
       </section>
 
       {/* 6. Achievements */}
-      <section className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
+      <section id="achievements" className="max-w-4xl mx-auto px-6 py-24 border-t border-slate-200 dark:border-neutral-800">
         <ScrollReveal animation="fade-up">
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-12">05. Achievements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -215,9 +270,9 @@ export default function MinimalUI({ publicProjects, privateProjects }) {
           </div>
           
           <div className="flex justify-center gap-8 mt-16 pt-8 border-t border-slate-200 dark:border-neutral-800">
-             <a href="#" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">GitHub</a>
-             <a href="#" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">LinkedIn</a>
-             <a href="#" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">Twitter</a>
+             <a href="https://github.com/Akshay-86" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">GitHub</a>
+             <a href="https://www.linkedin.com/in/nalliakshaykumar/" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">LinkedIn</a>
+             <a href="https://www.instagram.com/mr_mirk_rex" className="font-mono text-sm tracking-widest text-slate-400 dark:text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors uppercase">Instagram</a>
           </div>
         </ScrollReveal>
       </section>

@@ -1,22 +1,65 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ScrollReveal from "../ScrollReveal";
 
-export default function CyberUI({ publicProjects, privateProjects }) {
+export default function CyberUI({ publicProjects, privateProjects, controls }) {
+  const { themeMode, setThemeMode, currentStyle, setCurrentStyle } = controls || {};
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
-  const featuredProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 6);
+  const sortedProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+  const [showAll, setShowAll] = useState(false);
+  const visibleProjects = showAll ? sortedProjects : sortedProjects.slice(0, 6);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const NAV = ["about", "skills", "projects", "experience", "achievements", "contact"];
+  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); setMobileMenuOpen(false); };
 
   return (
-    <div className="min-h-screen font-mono text-cyan-900 dark:text-cyan-500 bg-white dark:bg-[#050510] transition-colors duration-500 pb-32 overflow-hidden relative selection:bg-cyan-500 selection:text-white">
+    <div className="min-h-screen font-mono text-cyan-900 dark:text-cyan-500 bg-white dark:bg-[#050510] transition-colors duration-500 pb-32 relative selection:bg-cyan-500 selection:text-white">
       
       {/* Background Grid Lines */}
       <div className="fixed inset-0 pointer-events-none opacity-20 dark:opacity-10 z-0 bg-[linear-gradient(to_right,#00f0ff_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff_1px,transparent_1px)] bg-[size:4rem_4rem] transition-opacity duration-1000"></div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 mt-24 flex flex-col gap-24">
+      {/* Cyber Nav */}
+      <nav className="sticky top-0 z-50 border-b-2 border-cyan-300 dark:border-[#00f0ff]/40 bg-cyan-50/80 dark:bg-[#050510]/90 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 flex items-center justify-between h-10">
+          <span className="text-xs font-black tracking-[0.3em] uppercase text-cyan-800 dark:text-[#00f0ff]">SYS://AKSHAY</span>
+          <div className="hidden md:flex items-center gap-0">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="px-3 py-1 text-[9px] uppercase tracking-[0.25em] font-bold text-cyan-600 dark:text-cyan-500 hover:text-cyan-950 dark:hover:text-[#00f0ff] hover:bg-cyan-100 dark:hover:bg-[#00f0ff]/10 transition-colors border-r border-cyan-200 dark:border-cyan-500/20 last:border-r-0">{id}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setThemeMode?.(themeMode === "dark" ? "light" : "dark")} className="w-7 h-7 flex items-center justify-center text-xs text-cyan-700 dark:text-[#00f0ff] border border-cyan-300 dark:border-[#00f0ff]/40 hover:bg-cyan-100 dark:hover:bg-[#00f0ff]/10 transition-colors" title="Toggle theme">
+              {themeMode === "dark" ? "☀️" : "🌙"}
+            </button>
+            <select value={currentStyle} onChange={(e) => setCurrentStyle?.(e.target.value)} className="bg-transparent text-[9px] font-bold tracking-[0.2em] uppercase text-cyan-600 dark:text-cyan-500 outline-none cursor-pointer border border-cyan-300 dark:border-[#00f0ff]/40 px-2 py-1 hover:bg-cyan-100 dark:hover:bg-[#00f0ff]/10 transition-colors">
+              <option value="minimal">MINIMAL</option>
+              <option value="bento">BENTO</option>
+              <option value="glass">GLASS</option>
+              <option value="cyber">CYBER</option>
+              <option value="terminal">TERMINAL</option>
+            </select>
+            {/* Hamburger */}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden w-7 h-7 flex flex-col items-center justify-center gap-1 border border-cyan-300 dark:border-[#00f0ff]/40 hover:bg-cyan-100 dark:hover:bg-[#00f0ff]/10 transition-colors">
+              <span className={`block w-3 h-0.5 bg-cyan-700 dark:bg-[#00f0ff] transition-all ${mobileMenuOpen ? "rotate-45 translate-y-[3px]" : ""}`}></span>
+              <span className={`block w-3 h-0.5 bg-cyan-700 dark:bg-[#00f0ff] transition-all ${mobileMenuOpen ? "-rotate-45 -translate-y-[3px]" : ""}`}></span>
+            </button>
+          </div>
+        </div>
+        {/* Mobile dropdown */}
+        <div className={`md:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="bg-cyan-50/90 dark:bg-[#050510]/95 backdrop-blur-xl border-t border-cyan-300 dark:border-[#00f0ff]/20 px-4 py-3 flex flex-col gap-0">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="text-left py-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-500 hover:text-cyan-950 dark:hover:text-[#00f0ff] hover:bg-cyan-100 dark:hover:bg-[#00f0ff]/10 px-3 transition-colors">{id}</button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 mt-12 flex flex-col gap-24">
         
-        {/* 1. HERO: INIT_HUD */}
-        <section className="border-l-4 border-cyan-500 dark:border-[#00f0ff] pl-8 py-12 bg-gradient-to-r from-cyan-50 dark:from-cyan-900/10 to-transparent">
+        {/* 1. HERO */}
+        <section id="hero" className="border-l-4 border-cyan-500 dark:border-[#00f0ff] pl-8 py-12 bg-gradient-to-r from-cyan-50 dark:from-cyan-900/10 to-transparent">
           <ScrollReveal animation="cyber-glitch">
             <div className="flex items-center gap-4 mb-8">
               <span className="bg-cyan-500 dark:bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest animate-pulse">Sys_Online</span>
@@ -34,18 +77,18 @@ export default function CyberUI({ publicProjects, privateProjects }) {
             </p>
             
             <div className="flex flex-wrap gap-4">
-               <button className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 dark:bg-[#00f0ff] dark:hover:bg-white text-white dark:text-black font-bold tracking-widest uppercase border-b-4 border-cyan-700 dark:border-cyan-600 transition-all hover:translate-y-1 hover:border-b-0" onClick={() => window.scrollTo({top: document.getElementById('projects').offsetTop, behavior: 'smooth'})}>
+               <button className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 dark:bg-[#00f0ff] dark:hover:bg-white text-white dark:text-black font-bold tracking-widest uppercase border-b-4 border-cyan-700 dark:border-cyan-600 transition-all hover:translate-y-1 hover:border-b-0" onClick={() => document.getElementById('projects')?.scrollIntoView({behavior: 'smooth'})}>
                  Run Archive.exe
                </button>
-               <button className="px-8 py-3 bg-transparent text-cyan-700 dark:text-cyan-500 font-bold tracking-widest uppercase border-2 border-cyan-500 dark:border-[#00f0ff] transition-all hover:bg-cyan-500 dark:hover:bg-[#00f0ff]/10 hover:text-white" onClick={() => window.scrollTo({top: document.getElementById('contact').offsetTop, behavior: 'smooth'})}>
+               <button className="px-8 py-3 bg-transparent text-cyan-700 dark:text-cyan-500 font-bold tracking-widest uppercase border-2 border-cyan-500 dark:border-[#00f0ff] transition-all hover:bg-cyan-500 dark:hover:bg-[#00f0ff]/10 hover:text-white" onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}>
                  Connect Proxy
                </button>
             </div>
           </ScrollReveal>
         </section>
 
-        {/* 2. ABOUT: USER_LOGS */}
-        <section className="border border-cyan-200 dark:border-cyan-500/30 bg-white/80 dark:bg-black/60 backdrop-blur-md p-8 md:p-12 relative overflow-hidden group">
+        {/* 2. ABOUT */}
+        <section id="about" className="border border-cyan-200 dark:border-cyan-500/30 bg-white/80 dark:bg-black/60 backdrop-blur-md p-8 md:p-12 relative overflow-hidden group">
           <ScrollReveal animation="fade-right">
             <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 dark:bg-gradient-to-r dark:from-transparent dark:via-cyan-500 dark:to-transparent dark:opacity-50"></div>
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-8">» 01_User_Profile</h2>
@@ -60,8 +103,8 @@ export default function CyberUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
         </section>
 
-        {/* 3. SKILLS: SYSTEM_CAPABILITIES */}
-        <section className="relative">
+        {/* 3. SKILLS */}
+        <section id="skills" className="relative">
           <ScrollReveal animation="fade-right">
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 02_Capabilities</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -87,7 +130,7 @@ export default function CyberUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
         </section>
 
-        {/* 4. PROJECTS: DECRYPTED_ARCHIVES */}
+        {/* 4. PROJECTS */}
         <section id="projects">
           <ScrollReveal animation="fade-right">
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12 flex items-center justify-between border-b border-cyan-300 dark:border-cyan-500/30 pb-4">
@@ -97,7 +140,7 @@ export default function CyberUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
 
           <div className="flex flex-col gap-8">
-            {featuredProjects.map((project, idx) => (
+            {visibleProjects.map((project, idx) => (
               <ScrollReveal key={project.id} animation="cyber-glitch" delay={50 * idx} duration={500} className="w-full">
                 <div className="border border-cyan-300 dark:border-cyan-500/30 bg-cyan-50/50 dark:bg-black/60 p-6 md:p-8 relative overflow-hidden group hover:border-cyan-500 dark:hover:border-[#00f0ff] transition-all shadow-[inset_0_0_20px_rgba(0,240,255,0.02)] dark:shadow-[inset_0_0_20px_rgba(0,240,255,0.05)]">
                   <div className="absolute top-0 left-0 w-2 h-full bg-cyan-400 dark:bg-[#00f0ff]"></div>
@@ -150,10 +193,22 @@ export default function CyberUI({ publicProjects, privateProjects }) {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Show More / Show Less */}
+          {sortedProjects.length > 6 && (
+            <div className="text-center mt-12">
+              <button 
+                onClick={() => setShowAll(!showAll)}
+                className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 dark:bg-transparent dark:hover:bg-[#00f0ff]/10 text-white dark:text-[#00f0ff] font-bold tracking-widest uppercase border-2 border-cyan-500 dark:border-[#00f0ff] transition-all"
+              >
+                {showAll ? `COLLAPSE_ARCHIVES ↑` : `EXPAND_ARCHIVES (${sortedProjects.length - 6} MORE) ↓`}
+              </button>
+            </div>
+          )}
         </section>
 
-        {/* 5. EXPERIENCE: MISSION_LOGS */}
-        <section>
+        {/* 5. EXPERIENCE */}
+        <section id="experience">
           <ScrollReveal animation="fade-right">
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 04_Mission_Logs</h2>
             <div className="border-l-2 border-cyan-300 dark:border-cyan-500/30 pl-8 space-y-12 relative">
@@ -173,8 +228,8 @@ export default function CyberUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
         </section>
 
-        {/* 6. ACHIEVEMENTS: ACQUIRED_ASSETS */}
-        <section>
+        {/* 6. ACHIEVEMENTS */}
+        <section id="achievements">
           <ScrollReveal animation="fade-right">
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 05_Acquired_Assets</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -192,7 +247,7 @@ export default function CyberUI({ publicProjects, privateProjects }) {
           </ScrollReveal>
         </section>
 
-        {/* 7. CONTACT: ENCRYPTED_COMMS */}
+        {/* 7. CONTACT */}
         <section id="contact">
           <ScrollReveal animation="fade-up">
             <div className="bg-cyan-900 dark:bg-[#00f0ff]/10 border-2 border-cyan-950 dark:border-[#00f0ff] p-12 md:p-24 text-center mt-12 relative overflow-hidden group">
@@ -206,7 +261,7 @@ export default function CyberUI({ publicProjects, privateProjects }) {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
-                <a href="mailto:hello@example.com" className="px-8 py-4 bg-cyan-400 dark:bg-[#00f0ff] text-cyan-950 dark:text-black font-black uppercase tracking-widest hover:bg-white transition-colors">
+                <a href="mailto:nalliakshaykumar@gmail.com" className="px-8 py-4 bg-cyan-400 dark:bg-[#00f0ff] text-cyan-950 dark:text-black font-black uppercase tracking-widest hover:bg-white transition-colors">
                   TRANSMIT_EMAIL
                 </a>
                 <button className="px-8 py-4 bg-cyan-950 dark:bg-black text-cyan-400 dark:text-[#00f0ff] border border-cyan-400 dark:border-[#00f0ff] font-black uppercase tracking-widest hover:bg-cyan-800 dark:hover:bg-[#00f0ff]/20 transition-colors">
@@ -215,8 +270,9 @@ export default function CyberUI({ publicProjects, privateProjects }) {
               </div>
               
               <div className="flex justify-center gap-12 mt-24 pt-8 border-t border-cyan-800 dark:border-cyan-500/30 relative z-10">
-                 <a href="#" className="text-cyan-300 dark:text-cyan-600 hover:text-white dark:hover:text-[#00f0ff] font-bold tracking-widest text-xs uppercase transition-colors">GitHub_Node</a>
-                 <a href="#" className="text-cyan-300 dark:text-cyan-600 hover:text-white dark:hover:text-[#00f0ff] font-bold tracking-widest text-xs uppercase transition-colors">Link_Network</a>
+                 <a href="https://github.com/Akshay-86" className="text-cyan-300 dark:text-cyan-600 hover:text-white dark:hover:text-[#00f0ff] font-bold tracking-widest text-xs uppercase transition-colors">GitHub_Node</a>
+                 <a href="https://www.linkedin.com/in/nalliakshaykumar/" className="text-cyan-300 dark:text-cyan-600 hover:text-white dark:hover:text-[#00f0ff] font-bold tracking-widest text-xs uppercase transition-colors">Link_Network</a>
+                 <a href="https://www.instagram.com/mr_mirk_rex" className="text-cyan-300 dark:text-cyan-600 hover:text-white dark:hover:text-[#00f0ff] font-bold tracking-widest text-xs uppercase transition-colors">Instagram</a>
               </div>
             </div>
           </ScrollReveal>

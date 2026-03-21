@@ -13,3 +13,8 @@ html, body {
 html.dark, html.dark body {
   background-color: #050510;
 }
+
+/* Offset for sticky nav when scrolling to anchors */
+#hero, #about, #skills, #projects, #experience, #achievements, #contact {
+  scroll-margin-top: 5rem;
+}

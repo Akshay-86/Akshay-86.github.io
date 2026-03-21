@@ -21,6 +21,9 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
 
     const savedMode = localStorage.getItem("portfolio-mode");
     if (savedMode) setThemeMode(savedMode);
+
+    const savedStyle = localStorage.getItem("portfolio-style");
+    if (savedStyle) setCurrentStyle(savedStyle);
   }, []);
 
   useEffect(() => {
@@ -32,15 +35,22 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     localStorage.setItem("portfolio-mode", themeMode);
   }, [themeMode]);
 
+  useEffect(() => {
+    localStorage.setItem("portfolio-style", currentStyle);
+  }, [currentStyle]);
+
+  // Shared controls prop bundle
+  const controls = { themeMode, setThemeMode, currentStyle, setCurrentStyle };
+
   const renderUI = () => {
     switch (currentStyle) {
-      case "terminal": return <TerminalUI publicProjects={publicProjects} privateProjects={privateProjects} />;
-      case "cyber": return <CyberUI publicProjects={publicProjects} privateProjects={privateProjects} />;
-      case "glass": return <GlassUI publicProjects={publicProjects} privateProjects={privateProjects} />;
-      case "bento": return <BentoUI publicProjects={publicProjects} privateProjects={privateProjects} />;
+      case "terminal": return <TerminalUI publicProjects={publicProjects} privateProjects={privateProjects} controls={controls} />;
+      case "cyber": return <CyberUI publicProjects={publicProjects} privateProjects={privateProjects} controls={controls} />;
+      case "glass": return <GlassUI publicProjects={publicProjects} privateProjects={privateProjects} controls={controls} />;
+      case "bento": return <BentoUI publicProjects={publicProjects} privateProjects={privateProjects} controls={controls} />;
       case "minimal": 
       default:
-        return <MinimalUI publicProjects={publicProjects} privateProjects={privateProjects} />;
+        return <MinimalUI publicProjects={publicProjects} privateProjects={privateProjects} controls={controls} />;
     }
   };
 
@@ -48,26 +58,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
 
   return (
     <ThemeProvider currentStyle={currentStyle}>
-      <div className="fixed top-4 right-4 z-[9999] flex items-center gap-3 group">
-        <button 
-          onClick={() => setThemeMode(themeMode === "dark" ? "light" : "dark")}
-          className="bg-black/80 dark:bg-white/10 text-white dark:text-neutral-200 border border-white/20 dark:border-white/10 rounded-full w-8 h-8 flex items-center justify-center text-xs outline-none cursor-pointer backdrop-blur-md opacity-20 hover:opacity-100 transition-opacity shadow-lg"
-          title="Toggle Light/Dark Mode"
-        >
-          {themeMode === "dark" ? "☀️" : "🌙"}
-        </button>
-        <select 
-          value={currentStyle}
-          onChange={(e) => setCurrentStyle(e.target.value)}
-          className="bg-black/80 dark:bg-[#111] text-white dark:text-neutral-300 border border-white/20 dark:border-white/10 rounded-md px-3 py-1.5 text-xs font-mono outline-none cursor-pointer backdrop-blur-md opacity-20 hover:opacity-100 transition-opacity focus:opacity-100 shadow-lg"
-        >
-          <option value="minimal">Minimal Modern</option>
-          <option value="bento">Bento Dashboard</option>
-          <option value="glass">Glassmorphism Gallery</option>
-          <option value="cyber">Cyberpunk OS</option>
-          <option value="terminal">Terminal CLI</option>
-        </select>
-      </div>
       {renderUI()}
     </ThemeProvider>
   );

@@ -3,17 +3,60 @@
 import React, { useState } from "react";
 import ScrollReveal from "../ScrollReveal";
 
-export default function BentoUI({ publicProjects, privateProjects }) {
+export default function BentoUI({ publicProjects, privateProjects, controls }) {
+  const { themeMode, setThemeMode, currentStyle, setCurrentStyle } = controls || {};
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
-  const featuredProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 6);
+  const sortedProjects = allProjects.sort((a,b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+  const [showAll, setShowAll] = useState(false);
+  const visibleProjects = showAll ? sortedProjects : sortedProjects.slice(0, 6);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const NAV = ["about", "skills", "projects", "experience", "achievements", "contact"];
+  const scrollTo = (id) => { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); setMobileMenuOpen(false); };
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-black text-slate-900 dark:text-neutral-200 font-sans p-4 md:p-8 transition-colors duration-500 pb-32">
       
-      <div className="max-w-6xl mx-auto flex flex-col gap-8 mt-16">
+      {/* Bento Nav */}
+      <nav className="sticky top-2 z-50 max-w-6xl mx-auto mb-4">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 rounded-2xl px-4 md:px-6 flex items-center justify-between h-12 shadow-sm">
+          <span className="text-sm font-black tracking-tight text-slate-900 dark:text-white">A<span className="text-blue-500">.</span></span>
+          <div className="hidden md:flex items-center gap-1">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-slate-400 dark:text-neutral-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors">{id}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setThemeMode?.(themeMode === "dark" ? "light" : "dark")} className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-neutral-800 text-xs hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors" title="Toggle theme">
+              {themeMode === "dark" ? "☀️" : "🌙"}
+            </button>
+            <select value={currentStyle} onChange={(e) => setCurrentStyle?.(e.target.value)} className="bg-slate-100 dark:bg-neutral-800 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-neutral-400 outline-none cursor-pointer rounded-xl px-3 py-1.5 border-none hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+              <option value="minimal">Minimal</option>
+              <option value="bento">Bento</option>
+              <option value="glass">Glass</option>
+              <option value="cyber">Cyber</option>
+              <option value="terminal">Terminal</option>
+            </select>
+            {/* Hamburger */}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden w-8 h-8 flex flex-col items-center justify-center gap-1 rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+              <span className={`block w-3.5 h-0.5 bg-slate-500 dark:bg-neutral-400 transition-all ${mobileMenuOpen ? "rotate-45 translate-y-[3px]" : ""}`}></span>
+              <span className={`block w-3.5 h-0.5 bg-slate-500 dark:bg-neutral-400 transition-all ${mobileMenuOpen ? "-rotate-45 -translate-y-[3px]" : ""}`}></span>
+            </button>
+          </div>
+        </div>
+        {/* Mobile dropdown */}
+        <div className={`md:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+          <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 rounded-2xl mt-2 px-4 py-3 flex flex-col gap-1 shadow-sm">
+            {NAV.map(id => (
+              <button key={id} onClick={() => scrollTo(id)} className="text-left py-2 text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800 rounded-lg px-3 transition-colors">{id}</button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-6xl mx-auto flex flex-col gap-8">
         
         {/* SECTION 1 & 2 & 3: HERO, ABOUT, SKILLS (BENTO GRID FORMAT) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div id="hero" className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           
           {/* Hero / Intro (Large Block) */}
           <ScrollReveal animation="fade-up" delay={100} className="md:col-span-2 lg:col-span-2 row-span-2">
@@ -26,7 +69,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
                 </p>
               </div>
               <div className="mt-12 flex gap-4">
-                <button className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-xl shadow-lg hover:scale-105 transition-transform" onClick={() => window.scrollTo({top: document.getElementById('projects').offsetTop, behavior: 'smooth'})}>
+                <button className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-xl shadow-lg hover:scale-105 transition-transform" onClick={() => document.getElementById('projects')?.scrollIntoView({behavior: 'smooth'})}>
                   View Projects
                 </button>
               </div>
@@ -35,7 +78,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
 
           {/* About Me (Medium Block) */}
           <ScrollReveal animation="fade-up" delay={200} className="md:col-span-1 lg:col-span-2">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-indigo-600 dark:to-purple-900 p-8 md:p-10 rounded-[2rem] h-full flex flex-col justify-center text-white shadow-lg relative overflow-hidden group">
+            <div id="about" className="bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-indigo-600 dark:to-purple-900 p-8 md:p-10 rounded-[2rem] h-full flex flex-col justify-center text-white shadow-lg relative overflow-hidden group">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
               <h2 className="text-xl font-bold mb-4 relative z-10 flex items-center gap-2">
                 <span className="text-2xl">⚡</span> The Mindset
@@ -48,7 +91,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
 
           {/* Contact Quick Link (Small Block) */}
           <ScrollReveal animation="fade-up" delay={300} className="md:col-span-1 lg:col-span-1">
-            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 rounded-[2rem] h-full flex flex-col justify-center items-center text-center shadow-sm hover:shadow-md transition-shadow group cursor-pointer" onClick={() => window.scrollTo({top: document.getElementById('contact').offsetTop, behavior: 'smooth'})}>
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 rounded-[2rem] h-full flex flex-col justify-center items-center text-center shadow-sm hover:shadow-md transition-shadow group cursor-pointer" onClick={() => document.getElementById('contact')?.scrollIntoView({behavior: 'smooth'})}>
               <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
                 📬
               </div>
@@ -59,7 +102,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
 
           {/* Skills (Medium Block) */}
           <ScrollReveal animation="fade-up" delay={400} className="md:col-span-2 lg:col-span-1">
-            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+            <div id="skills" className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
               <h2 className="font-bold text-slate-900 dark:text-white text-lg mb-6 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Technical Toolkit
               </h2>
@@ -75,14 +118,14 @@ export default function BentoUI({ publicProjects, privateProjects }) {
 
         </div>
 
-        {/* SECTION 4: PROJECTS (Cinematic List within Bento Container) */}
+        {/* SECTION 4: PROJECTS */}
         <div id="projects" className="mt-16">
           <ScrollReveal animation="fade-up">
             <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 ml-4">Featured Case Studies</h2>
           </ScrollReveal>
           
           <div className="flex flex-col gap-6">
-            {featuredProjects.map((project, idx) => (
+            {visibleProjects.map((project, idx) => (
               <ScrollReveal key={project.id} animation="fade-up" delay={50 * idx} duration={800} className="w-full">
                 <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
@@ -140,6 +183,18 @@ export default function BentoUI({ publicProjects, privateProjects }) {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Show More / Show Less */}
+          {sortedProjects.length > 6 && (
+            <div className="text-center mt-12">
+              <button 
+                onClick={() => setShowAll(!showAll)}
+                className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-xl shadow-lg hover:scale-105 transition-transform"
+              >
+                {showAll ? `Show Less ↑` : `Show More (${sortedProjects.length - 6} more) ↓`}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* SECTION 5 & 6: EXPERIENCE & ACHIEVEMENTS */}
@@ -147,7 +202,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
           
           {/* Experience */}
           <ScrollReveal animation="fade-up" className="w-full">
-            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+            <div id="experience" className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
               <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
                 <span className="text-3xl">🚀</span> Experience Journey
               </h2>
@@ -173,7 +228,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
 
           {/* Achievements */}
           <ScrollReveal animation="fade-up" delay={200} className="w-full">
-            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+            <div id="achievements" className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
               <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
                 <span className="text-3xl">🏆</span> Achievements
               </h2>
@@ -199,8 +254,8 @@ export default function BentoUI({ publicProjects, privateProjects }) {
         </div>
 
         {/* SECTION 7: CONTACT / OUTRO */}
-        <ScrollReveal id="contact" animation="fade-up" className="mt-16">
-          <div className="bg-slate-900 dark:bg-neutral-900 p-12 md:p-24 rounded-[3rem] text-center text-white relative overflow-hidden flex flex-col items-center justify-center">
+        <ScrollReveal animation="fade-up" className="mt-16">
+          <div id="contact" className="bg-slate-900 dark:bg-neutral-900 p-12 md:p-24 rounded-[3rem] text-center text-white relative overflow-hidden flex flex-col items-center justify-center">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 blur-[80px] rounded-full"></div>
             
@@ -208,7 +263,7 @@ export default function BentoUI({ publicProjects, privateProjects }) {
             <p className="text-xl text-slate-400 font-medium max-w-lg mb-12 relative z-10">Whether you need help architecting a Next.js system or just want to collaborate, I am currently available.</p>
             
             <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-              <a href="mailto:hello@example.com" className="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl shadow-xl hover:-translate-y-1 transition-all">
+              <a href="mailto:nalliskahykumar@gmail.com" className="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl shadow-xl hover:-translate-y-1 transition-all">
                 Send an Email
               </a>
               <button className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold rounded-xl backdrop-blur-md transition-all">
