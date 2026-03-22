@@ -15,10 +15,10 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
   const [booting, setBooting] = useState(true);
   const [localProjects, setLocalProjects] = useState([]);
   const [showBootBanner, setShowBootBanner] = useState(false);
+  const [bannerDismissing, setBannerDismissing] = useState(false);
 
   useEffect(() => {
-    // Boot logic
-    const bootPref = localStorage.getItem("portfolio-boot"); // "always" | "once" | null
+    const bootPref = localStorage.getItem("portfolio-boot");
     const hasVisited = localStorage.getItem("hasVisited");
     const bannerDismissed = localStorage.getItem("portfolio-boot-banner-dismissed");
 
@@ -33,10 +33,8 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
         setBooting(true);
       }
     } else {
-      // Default: boot only first time
       if (hasVisited) {
         setBooting(false);
-        // Only show banner if not previously dismissed
         setShowBootBanner(!bannerDismissed);
       }
     }
@@ -48,7 +46,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     const savedStyle = localStorage.getItem("portfolio-style");
     if (savedStyle) setCurrentStyle(savedStyle);
 
-    // Load local projects
     try {
       const saved = localStorage.getItem("portfolio-local-projects");
       if (saved) setLocalProjects(JSON.parse(saved));
@@ -68,13 +65,16 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     localStorage.setItem("portfolio-style", currentStyle);
   }, [currentStyle]);
 
-  // Dismiss banner permanently
+  // Dismiss banner with slide-up animation
   const dismissBanner = () => {
-    setShowBootBanner(false);
-    localStorage.setItem("portfolio-boot-banner-dismissed", "true");
+    setBannerDismissing(true);
+    setTimeout(() => {
+      setShowBootBanner(false);
+      setBannerDismissing(false);
+      localStorage.setItem("portfolio-boot-banner-dismissed", "true");
+    }, 400);
   };
 
-  // Add a local project
   const addLocalProject = (project) => {
     const newProject = {
       id: `local-${Date.now()}`,
@@ -95,7 +95,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     localStorage.setItem("portfolio-local-projects", JSON.stringify(updated));
   };
 
-  // Set boot preference
   const setBootPref = (pref) => {
     localStorage.setItem("portfolio-boot", pref);
     if (pref === "disabled") {
@@ -106,7 +105,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     }
   };
 
-  // Merge local projects with public
   const allPublic = [...(publicProjects || []), ...localProjects];
 
   const controls = {
@@ -132,9 +130,8 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
 
   return (
     <ThemeProvider currentStyle={currentStyle}>
-      {/* Boot banner — sits in flow, pushes content down, not overlay */}
       {showBootBanner && (
-        <div className="w-full z-[9999] bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white text-center py-2 px-4 text-xs font-medium flex items-center justify-center gap-3 animate-[slideDown_0.4s_ease-out]">
+        <div className={`w-full z-[9999] bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white text-center py-2 px-4 text-xs font-medium flex items-center justify-center gap-3 ${bannerDismissing ? "animate-[slideUp_0.4s_ease-in_forwards]" : "animate-[slideDown_0.4s_ease-out]"}`}>
           <span>🚀 Boot sequence is disabled. Switch to <strong>Terminal</strong> UI and type <code className="bg-white/20 px-1.5 py-0.5 rounded text-[11px]">enable boot</code> to re-enable it.</span>
           <button onClick={dismissBanner} className="text-white/80 hover:text-white font-bold text-sm ml-2 hover:scale-110 transition-transform">✕</button>
         </div>

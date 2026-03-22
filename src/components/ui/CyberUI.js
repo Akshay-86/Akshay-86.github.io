@@ -154,8 +154,22 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
                           {project.description || "NO RELEVANT ARCHIVE MOTIVATION FOUND."}
                         </p>
                         
-                        <div className="flex items-center gap-3 mb-8">
+                        <div className="flex items-center gap-3 flex-wrap mb-8">
                           <span className="bg-cyan-100 dark:bg-cyan-900/30 px-3 py-1 text-xs font-bold uppercase tracking-widest text-cyan-800 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-800">{project.language || "SYS_BIN"}</span>
+                          {project.isLocal ? (
+                            <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-purple-800 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-800">{(project.localTag || 'LOCAL').toUpperCase()}</span>
+                          ) : (
+                            <>
+                              {project.private ? (
+                                <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-800 dark:text-red-400 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800">PRIVATE</span>
+                              ) : (
+                                <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-green-800 dark:text-green-400 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-800">PUBLIC</span>
+                              )}
+                              {project.fork && (
+                                <span className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-800">FORK</span>
+                              )}
+                            </>
+                          )}
                         </div>
 
                         {project.html_url && (
@@ -213,7 +227,7 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 04_Mission_Logs</h2>
             <div className="border-l-2 border-cyan-300 dark:border-cyan-500/30 pl-8 space-y-12 relative">
                {[
-                 { year: "PRESENT", role: "Software Developer Trainee", company: "Agasthya Solutions", desc: "Executing real-world system architecture integrations into corporate sectors." },
+                 { year: "PRESENT", role: "Software Developer Trainee", company: "Bhairav Robotics", desc: "Executing real-world system architecture integrations into corporate sectors." },
                  { year: "2023_ONWARD", role: "Open Source Protocol", company: "GitHub Global", desc: "Injecting architectural pull requests into existing robust infrastructures." },
                  { year: "2021_2024", role: "Computer Eng Protocol", company: "Andhra Polytechnic", desc: "Formalizing base logic algorithms and hardware-software interaction bridges." },
                ].map((job, idx) => (

@@ -154,6 +154,20 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
                            <span className="px-4 py-2 bg-white/50 dark:bg-white/5 rounded-full text-xs text-slate-800 dark:text-white uppercase tracking-widest font-mono border border-white/50 dark:border-white/10">
                               {project.language || "Docs"}
                            </span>
+                           {project.isLocal ? (
+                             <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-700 dark:text-purple-300 uppercase tracking-widest font-bold border border-purple-500/20">{(project.localTag || 'local').toUpperCase()}</span>
+                           ) : (
+                             <>
+                               {project.private ? (
+                                 <span className="px-3 py-1 bg-red-500/20 rounded-full text-xs text-red-700 dark:text-red-300 uppercase tracking-widest font-bold border border-red-500/20">Private</span>
+                               ) : (
+                                 <span className="px-3 py-1 bg-green-500/20 rounded-full text-xs text-green-700 dark:text-green-300 uppercase tracking-widest font-bold border border-green-500/20">Public</span>
+                               )}
+                               {project.fork && (
+                                 <span className="px-3 py-1 bg-amber-500/20 rounded-full text-xs text-amber-700 dark:text-amber-300 uppercase tracking-widest font-bold border border-amber-500/20">Fork</span>
+                               )}
+                             </>
+                           )}
                         </div>
 
                         {project.html_url && (
@@ -212,7 +226,7 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
             </h2>
             <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-px before:bg-gradient-to-b before:from-transparent before:via-slate-300 dark:before:via-slate-700 before:to-transparent">
                {[
-                 { year: "Present", role: "Software Developer Trainee", company: "Agasthya Solutions", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
+                 { year: "Present", role: "Software Developer Trainee", company: "Bhairav Robotics", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
                  { year: "2023 - Present", role: "Open Source Contributor", company: "GitHub Ecosystem", desc: "Started deeply contributing to robust open-source projects on GitHub, learning complex pull requests, merges, and systemic refactoring." },
                  { year: "2021 - 2024", role: "Engineering Diploma", company: "Andhra Polytechnic Kakinada", desc: "Formalizing computer science fundamentals traversing algorithms, databases, Android application mapping, and core logic." },
                ].map((item, i) => (

@@ -145,6 +145,20 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
                         <span className="px-3 py-1 bg-slate-50 dark:bg-[#1a1a1a] text-slate-500 dark:text-neutral-500 font-mono rounded-lg text-xs font-bold border border-slate-200 dark:border-neutral-800">
                           ★ {project.stargazers_count || 0}
                         </span>
+                        {project.isLocal ? (
+                          <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-bold border border-purple-100 dark:border-purple-800/30">{(project.localTag || 'Local').toUpperCase()}</span>
+                        ) : (
+                          <>
+                            {project.private ? (
+                              <span className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold border border-red-100 dark:border-red-800/30">Private</span>
+                            ) : (
+                              <span className="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg text-xs font-bold border border-green-100 dark:border-green-800/30">Public</span>
+                            )}
+                            {project.fork && (
+                              <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-100 dark:border-amber-800/30">Fork</span>
+                            )}
+                          </>
+                        )}
                       </div>
 
                       {project.html_url && (
@@ -208,7 +222,7 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
               </h2>
               <div className="flex flex-col gap-8">
                 {[
-                  { title: "Software Developer Trainee", org: "Agasthya Solutions", time: "Present" },
+                  { title: "Software Developer Trainee", org: "Bhairav Robotics", time: "Present" },
                   { title: "Open Source Contributor", org: "GitHub Ecosystem", time: "2023 - Present" },
                   { title: "Computer Engineering Diploma", org: "Andhra Polytechnic", time: "2021 - 2024" }
                 ].map((item, i) => (

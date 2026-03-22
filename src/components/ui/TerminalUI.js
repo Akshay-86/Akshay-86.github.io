@@ -38,7 +38,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
   const ALL_COMMANDS = [
     "help", "clear", "whoami", "date", "ls", "cd", "cat",
     "about", "skills", "experience", "achievements", "contact",
-    "projects", "fetch", "theme", "style", "enable"
+    "projects", "fetch", "theme", "style", "enable", "refresh"
   ];
   const ADMIN_COMMANDS = ["add project"];
   const CAT_FILES = ["about.txt", "skills.json", "experience.log", "achievements.dat", "contact.cfg"];
@@ -462,6 +462,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">theme</td><td>[dark|light] - Switch theme</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">style</td><td>[name] - Switch UI style</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">enable boot</td><td>Configure boot sequence</td></tr>
+                <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">refresh</td><td>Reload the page</td></tr>
                 {isAdmin && (
                   <>
                     <tr><td colSpan="2" className="pt-2 text-red-500 dark:text-red-400 font-bold">🔓 Admin Commands:</td></tr>
@@ -544,6 +545,13 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         localStorage.clear();
         output = (<span className="text-green-600 dark:text-green-400">✓ All stored data cleared. Reload the page for changes to take effect.</span>);
         break;
+
+      case "refresh":
+        output = (<span className="text-green-600 dark:text-green-400">Refreshing page...</span>);
+        newHistory.push({ type: "output", content: output });
+        setHistory(newHistory);
+        setTimeout(() => window.location.reload(), 500);
+        return;
 
       case "theme":
         const themeArg = args[1]?.toLowerCase();

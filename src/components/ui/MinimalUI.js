@@ -139,9 +139,25 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
                  </div>
                  
                  <div className="w-full max-w-2xl relative z-10">
-                    <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-8 text-slate-900 dark:text-white">
+                    <h3 className="text-4xl md:text-6xl font-black tracking-tight mb-4 text-slate-900 dark:text-white">
                       {project.name}
                     </h3>
+                    <div className="flex flex-wrap gap-2 mb-8">
+                      {project.isLocal ? (
+                        <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full border border-purple-200 dark:border-purple-800/30 uppercase tracking-widest">{(project.localTag || 'local').toUpperCase()}</span>
+                      ) : (
+                        <>
+                          {project.private ? (
+                            <span className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-full border border-red-200 dark:border-red-800/30 uppercase tracking-widest">Private</span>
+                          ) : (
+                            <span className="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-bold rounded-full border border-green-200 dark:border-green-800/30 uppercase tracking-widest">Public</span>
+                          )}
+                          {project.fork && (
+                            <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-full border border-amber-200 dark:border-amber-800/30 uppercase tracking-widest">Fork</span>
+                          )}
+                        </>
+                      )}
+                    </div>
                     
                     <div className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mb-24">
                        <div className="col-span-1 border-l-2 border-slate-200 dark:border-neutral-800 pl-4 md:border-l-0 md:border-t-2 md:pt-4 md:pl-0">
@@ -215,7 +231,7 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
 
           <div className="flex flex-col gap-16">
             {[
-              { role: "Software Developer Trainee", company: "Agasthya Solutions", year: "Present", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
+              { role: "Software Developer Trainee", company: "Bhairav Robotics", year: "Present", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
               { role: "Open Source Contributor", company: "GitHub Global", year: "2023 — Present", desc: "Started deeply contributing to robust open-source projects on GitHub, learning complex pull requests, merges, and systemic refactoring." },
               { role: "Engineering Diploma", company: "Andhra Polytechnic Kakinada", year: "2021 — 2024", desc: "Formalizing computer science fundamentals traversing algorithms, databases, Android application mapping, and core logic." },
             ].map((job, idx) => (
