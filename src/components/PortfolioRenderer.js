@@ -8,14 +8,29 @@ import MinimalUI from "./ui/MinimalUI";
 import BentoUI from "./ui/BentoUI";
 import BootSequence from "./BootSequence";
 import { ThemeProvider } from "./ThemeProvider";
+import {
+  fetchProjects as fbFetchProjects,
+  addProject as fbAddProject,
+  updateProject as fbUpdateProject,
+  deleteProject as fbDeleteProject,
+  getAdminHash,
+  setAdminHash,
+} from "../lib/firebase";
 
 export default function PortfolioRenderer({ publicProjects, privateProjects }) {
   const [currentStyle, setCurrentStyle] = useState("minimal");
   const [themeMode, setThemeMode] = useState("dark");
   const [booting, setBooting] = useState(true);
-  const [localProjects, setLocalProjects] = useState([]);
+  const [firebaseProjects, setFirebaseProjects] = useState([]);
   const [showBootBanner, setShowBootBanner] = useState(false);
   const [bannerDismissing, setBannerDismissing] = useState(false);
+
+  // Load Firebase projects on mount
+  useEffect(() => {
+    fbFetchProjects().then((projects) => {
+      setFirebaseProjects(projects);
+    });
+  }, []);
 
   useEffect(() => {
     const bootPref = localStorage.getItem("portfolio-boot");
@@ -45,11 +60,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
 
     const savedStyle = localStorage.getItem("portfolio-style");
     if (savedStyle) setCurrentStyle(savedStyle);
-
-    try {
-      const saved = localStorage.getItem("portfolio-local-projects");
-      if (saved) setLocalProjects(JSON.parse(saved));
-    } catch (e) { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -65,7 +75,6 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     localStorage.setItem("portfolio-style", currentStyle);
   }, [currentStyle]);
 
-  // Dismiss banner with slide-up animation
   const dismissBanner = () => {
     setBannerDismissing(true);
     setTimeout(() => {
@@ -75,14 +84,16 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     }, 400);
   };
 
-  const addLocalProject = (project) => {
+  // Firebase-backed project operations
+  const addLocalProject = async (project) => {
+    const docId = await fbAddProject(project);
     const newProject = {
-      id: `local-${Date.now()}`,
+      id: docId,
       name: project.name,
       description: project.description || "",
       language: project.language || "Unknown",
       stargazers_count: parseInt(project.stars) || 0,
-      html_url: project.url || "#",
+      html_url: project.url || "",
       private: false,
       isLocal: true,
       localTag: project.tag || "local",
@@ -90,9 +101,20 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
       endTime: project.endTime || "Ongoing",
       recentCommits: [],
     };
-    const updated = [...localProjects, newProject];
-    setLocalProjects(updated);
-    localStorage.setItem("portfolio-local-projects", JSON.stringify(updated));
+    setFirebaseProjects((prev) => [...prev, newProject]);
+    return docId;
+  };
+
+  const editLocalProject = async (docId, updates) => {
+    await fbUpdateProject(docId, updates);
+    setFirebaseProjects((prev) =>
+      prev.map((p) => (p.id === docId ? { ...p, ...updates } : p))
+    );
+  };
+
+  const deleteLocalProject = async (docId) => {
+    await fbDeleteProject(docId);
+    setFirebaseProjects((prev) => prev.filter((p) => p.id !== docId));
   };
 
   const setBootPref = (pref) => {
@@ -105,13 +127,15 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     }
   };
 
-  const allPublic = [...(publicProjects || []), ...localProjects];
+  const allPublic = [...(publicProjects || []), ...firebaseProjects];
 
   const controls = {
     themeMode, setThemeMode,
     currentStyle, setCurrentStyle,
-    addLocalProject, setBootPref,
-    showBootBanner, setShowBootBanner,
+    addLocalProject, editLocalProject, deleteLocalProject,
+    getAdminHash, setAdminHash,
+    setBootPref, showBootBanner, setShowBootBanner,
+    firebaseProjects,
   };
 
   const renderUI = () => {
@@ -120,7 +144,7 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
       case "cyber": return <CyberUI publicProjects={allPublic} privateProjects={privateProjects} controls={controls} />;
       case "glass": return <GlassUI publicProjects={allPublic} privateProjects={privateProjects} controls={controls} />;
       case "bento": return <BentoUI publicProjects={allPublic} privateProjects={privateProjects} controls={controls} />;
-      case "minimal": 
+      case "minimal":
       default:
         return <MinimalUI publicProjects={allPublic} privateProjects={privateProjects} controls={controls} />;
     }

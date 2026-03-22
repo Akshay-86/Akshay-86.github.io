@@ -10,11 +10,8 @@ async function sha256(message) {
   return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Hardcoded SHA-256 hash of the admin password (replace with your own)
-const ADMIN_HASH = "a5c99bb99a92374c93ce041f970ae23d852f4737f52ff45c17ea33a1ceeba3b0";
-
 export default function TerminalUI({ publicProjects, privateProjects, controls }) {
-  const { themeMode, setThemeMode, currentStyle, setCurrentStyle, addLocalProject, setBootPref, showBootBanner, setShowBootBanner } = controls || {};
+  const { themeMode, setThemeMode, currentStyle, setCurrentStyle, addLocalProject, editLocalProject, deleteLocalProject, getAdminHash, setAdminHash, setBootPref, showBootBanner, setShowBootBanner, firebaseProjects } = controls || {};
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
 
   const [history, setHistory] = useState([
@@ -32,7 +29,8 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
   // Interactive mode state machine
   const [mode, setMode] = useState("normal");
   const [sudoProject, setSudoProject] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false); // sudo unlocks admin access
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [passwdTemp, setPasswdTemp] = useState({});
 
   const STYLES = ["minimal", "bento", "glass", "cyber", "terminal"];
   const ALL_COMMANDS = [
@@ -40,7 +38,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     "about", "skills", "experience", "achievements", "contact",
     "projects", "fetch", "theme", "style", "enable", "refresh"
   ];
-  const ADMIN_COMMANDS = ["add project"];
+  const ADMIN_COMMANDS = ["add project", "edit project", "delete project", "passwd"];
   const CAT_FILES = ["about.txt", "skills.json", "experience.log", "achievements.dat", "contact.cfg"];
   const CD_DIRS = ["~", "projects", ".."];
 
@@ -227,6 +225,12 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
       case "sudo-tag": return "Tag (*) [local/private]: ";
       case "sudo-confirm": return "Save and update? (type 'yes'): ";
       case "boot-choose": return "Select option (1 or 2): ";
+      case "passwd-old": return "Current password: ";
+      case "passwd-new": return "New password: ";
+      case "passwd-confirm": return "Confirm new password: ";
+      case "edit-choose": return "Field to edit (name/desc/lang/stars/url/start/end/tag) or 'done': ";
+      case "edit-value": return `New value for ${sudoProject.editField}: `;
+      case "delete-confirm": return "Type 'yes' to confirm deletion: ";
       default: return `${isAdmin ? "root" : "akshay"}@${inputDir} ~$ `;
     }
   };
@@ -246,7 +250,8 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         setMode("normal");
       } else {
         const hash = await sha256(cmd);
-        if (hash === ADMIN_HASH) {
+        const storedHash = await getAdminHash?.();
+        if (storedHash && hash === storedHash) {
           setIsAdmin(true);
           newHist.push({
             type: "output", content: (
@@ -257,11 +262,63 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
             )
           });
           setMode("normal");
+        } else if (!storedHash) {
+          newHist.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">No admin password set yet. Setting this as the admin password...</span>) });
+          await setAdminHash?.(hash);
+          setIsAdmin(true);
+          newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Admin password set. Access granted. Type <span className="font-bold">help</span> for commands.</span>) });
+          setMode("normal");
         } else {
           newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Authentication failed. Incorrect password.</span>) });
           setMode("normal");
         }
       }
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+
+    // Password change modes
+    if (mode === "passwd-old") {
+      const newHist = [...history, { type: "input-masked", content: "Current password: ********" }];
+      const hash = await sha256(cmd);
+      const storedHash = await getAdminHash?.();
+      if (hash !== storedHash) {
+        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Current password is incorrect.</span>) });
+        setMode("normal");
+      } else {
+        setPasswdTemp({ oldHash: hash });
+        setMode("passwd-new");
+      }
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+    if (mode === "passwd-new") {
+      const newHist = [...history, { type: "input-masked", content: "New password: ********" }];
+      if (!cmd || cmd.length < 4) {
+        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Password must be at least 4 characters.</span>) });
+      } else {
+        const newHash = await sha256(cmd);
+        setPasswdTemp(prev => ({ ...prev, newHash }));
+        setMode("passwd-confirm");
+      }
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+    if (mode === "passwd-confirm") {
+      const newHist = [...history, { type: "input-masked", content: "Confirm password: ********" }];
+      const confirmHash = await sha256(cmd);
+      if (confirmHash !== passwdTemp.newHash) {
+        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Passwords do not match. Try again.</span>) });
+        setMode("normal");
+      } else {
+        await setAdminHash?.(confirmHash);
+        newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Password changed successfully.</span>) });
+        setMode("normal");
+      }
+      setPasswdTemp({});
       setHistory(newHist);
       setShouldScroll(true);
       return;
@@ -376,10 +433,70 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     if (mode === "sudo-confirm") {
       const newHist = [...history, { type: "input-prompt", prompt: "Save and update? (type 'yes'): ", content: cmd }];
       if (cmd.toLowerCase() === "yes") {
-        addLocalProject?.(sudoProject);
-        newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Project &quot;{sudoProject.name}&quot; saved successfully! It will now appear in your projects list.</span>) });
+        try {
+          await addLocalProject?.(sudoProject);
+          newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Project "{sudoProject.name}" saved to cloud! It will appear across all devices.</span>) });
+        } catch (e) {
+          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Failed to save: {e.message}</span>) });
+        }
       } else {
         newHist.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">Operation cancelled. Project not saved.</span>) });
+      }
+      setSudoProject({});
+      setMode("normal");
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+
+    // Edit project mode
+    if (mode === "edit-choose") {
+      const newHist = [...history, { type: "input-prompt", prompt: getPrompt(), content: cmd }];
+      const field = cmd.toLowerCase();
+      if (field === "done") {
+        setMode("normal");
+        setSudoProject({});
+        newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Editing complete.</span>) });
+      } else {
+        const fieldMap = { name: "name", desc: "description", lang: "language", stars: "stargazers_count", url: "html_url", start: "startTime", end: "endTime", tag: "localTag" };
+        if (!fieldMap[field]) {
+          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Unknown field. Use: name, desc, lang, stars, url, start, end, tag</span>) });
+        } else {
+          setSudoProject(prev => ({ ...prev, editField: field, editKey: fieldMap[field] }));
+          setMode("edit-value");
+        }
+      }
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+    if (mode === "edit-value") {
+      const newHist = [...history, { type: "input-prompt", prompt: getPrompt(), content: cmd }];
+      try {
+        const update = { [sudoProject.editKey]: sudoProject.editKey === "stargazers_count" ? (parseInt(cmd) || 0) : cmd };
+        await editLocalProject?.(sudoProject.editId, update);
+        newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Updated {sudoProject.editField} → {cmd}</span>) });
+      } catch (e) {
+        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Failed: {e.message}</span>) });
+      }
+      setMode("edit-choose");
+      setHistory(newHist);
+      setShouldScroll(true);
+      return;
+    }
+
+    // Delete confirm
+    if (mode === "delete-confirm") {
+      const newHist = [...history, { type: "input-prompt", prompt: getPrompt(), content: cmd }];
+      if (cmd.toLowerCase() === "yes") {
+        try {
+          await deleteLocalProject?.(sudoProject.deleteId);
+          newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Project "{sudoProject.deleteName}" deleted from cloud.</span>) });
+        } catch (e) {
+          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Failed: {e.message}</span>) });
+        }
+      } else {
+        newHist.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">Deletion cancelled.</span>) });
       }
       setSudoProject({});
       setMode("normal");
@@ -420,8 +537,9 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     const args = cmd.split(" ").filter(Boolean);
     const command = args[0].toLowerCase();
 
-    // Handle "add project" as two-word command
-    if (command === "add" && args[1]?.toLowerCase() === "project") {
+    // Handle multi-word admin commands
+    const twoWord = `${command} ${(args[1] || "").toLowerCase()}`;
+    if (twoWord === "add project") {
       if (!isAdmin) {
         newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>) });
       } else {
@@ -429,6 +547,55 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         newHistory.push({ type: "system", content: "────────────────────────────────────" });
         setSudoProject({});
         setMode("sudo-name");
+      }
+      setHistory(newHistory);
+      setShouldScroll(true);
+      return;
+    }
+    if (twoWord === "edit project") {
+      if (!isAdmin) {
+        newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>) });
+      } else {
+        const projectName = args.slice(2).join(" ");
+        const found = firebaseProjects?.find(p => p.name.toLowerCase() === projectName.toLowerCase());
+        if (!projectName) {
+          newHistory.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">Usage: edit project &lt;name&gt;</span>) });
+          if (firebaseProjects?.length) {
+            newHistory.push({ type: "output", content: (<div className="text-slate-500 dark:text-gray-500 mt-1">Local projects: {firebaseProjects.map(p => p.name).join(", ")}</div>) });
+          }
+        } else if (!found) {
+          newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Project "{projectName}" not found in local/cloud projects.</span>) });
+          if (firebaseProjects?.length) {
+            newHistory.push({ type: "output", content: (<div className="text-slate-500 dark:text-gray-500 mt-1">Available: {firebaseProjects.map(p => p.name).join(", ")}</div>) });
+          }
+        } else {
+          setSudoProject({ editId: found.id, editField: null, editKey: null });
+          newHistory.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">Editing "{found.name}". Enter field to edit, or 'done' to finish.</span>) });
+          setMode("edit-choose");
+        }
+      }
+      setHistory(newHistory);
+      setShouldScroll(true);
+      return;
+    }
+    if (twoWord === "delete project") {
+      if (!isAdmin) {
+        newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>) });
+      } else {
+        const projectName = args.slice(2).join(" ");
+        const found = firebaseProjects?.find(p => p.name.toLowerCase() === projectName.toLowerCase());
+        if (!projectName) {
+          newHistory.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">Usage: delete project &lt;name&gt;</span>) });
+          if (firebaseProjects?.length) {
+            newHistory.push({ type: "output", content: (<div className="text-slate-500 dark:text-gray-500 mt-1">Local projects: {firebaseProjects.map(p => p.name).join(", ")}</div>) });
+          }
+        } else if (!found) {
+          newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Project "{projectName}" not found.</span>) });
+        } else {
+          setSudoProject({ deleteId: found.id, deleteName: found.name });
+          newHistory.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">⚠ Delete "{found.name}" permanently? This cannot be undone.</span>) });
+          setMode("delete-confirm");
+        }
       }
       setHistory(newHistory);
       setShouldScroll(true);
@@ -466,7 +633,10 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
                 {isAdmin && (
                   <>
                     <tr><td colSpan="2" className="pt-2 text-red-500 dark:text-red-400 font-bold">🔓 Admin Commands:</td></tr>
-                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">add project</td><td>Add a local project interactively</td></tr>
+                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">add project</td><td>Add a project to cloud</td></tr>
+                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">edit project</td><td>&lt;name&gt; — Edit a cloud project</td></tr>
+                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">delete project</td><td>&lt;name&gt; — Delete a cloud project</td></tr>
+                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">passwd</td><td>Change admin password</td></tr>
                   </>
                 )}
               </tbody>
@@ -501,6 +671,18 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
           output = (<span className="text-yellow-600 dark:text-yellow-400">Exiting admin mode. Back to guest.</span>);
         } else {
           output = "Not in admin mode.";
+        }
+        break;
+
+      case "passwd":
+        if (!isAdmin) {
+          output = (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>);
+        } else {
+          newHistory.push({ type: "system", content: "🔑 Change admin password." });
+          setMode("passwd-old");
+          setHistory(newHistory);
+          setShouldScroll(true);
+          return;
         }
         break;
 
@@ -747,6 +929,22 @@ STATUS: Open to opportunities`}
         }
         break;
 
+      case "edit":
+        if (!isAdmin) {
+          output = (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>);
+        } else {
+          output = `Usage: edit project <name>`;
+        }
+        break;
+
+      case "delete":
+        if (!isAdmin) {
+          output = (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>);
+        } else {
+          output = `Usage: delete project <name>`;
+        }
+        break;
+
       default: {
         const suggestion = findSuggestion(command);
         if (suggestion) {
@@ -834,7 +1032,7 @@ STATUS: Open to opportunities`}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-1 bg-transparent border-none outline-none text-slate-900 dark:text-white font-mono shadow-none flex-grow min-w-10"
-            style={mode === "password" ? { WebkitTextSecurity: "disc", textSecurity: "disc" } : {}}
+            style={["password", "passwd-old", "passwd-new", "passwd-confirm"].includes(mode) ? { WebkitTextSecurity: "disc", textSecurity: "disc" } : {}}
             autoComplete="off"
             spellCheck="false"
             autoFocus
