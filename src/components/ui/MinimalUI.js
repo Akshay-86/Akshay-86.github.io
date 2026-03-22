@@ -162,7 +162,9 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
                     <div className="mt-16 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mb-24">
                        <div className="col-span-1 border-l-2 border-slate-200 dark:border-neutral-800 pl-4 md:border-l-0 md:border-t-2 md:pt-4 md:pl-0">
                           <h4 className="text-xs uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-4">Timeline</h4>
-                          <p className="text-slate-900 dark:text-neutral-300 font-mono text-sm">{new Date(project.created_at || project.updated_at).toLocaleDateString()}</p>
+                          <p className="text-slate-900 dark:text-neutral-300 font-mono text-sm">
+                            {project.isLocal ? (project.startTime || "Ongoing") : new Date(project.created_at || project.updated_at).toLocaleDateString()}
+                          </p>
                        </div>
                        
                        <div className="col-span-1 md:col-span-2 border-l-2 border-slate-200 dark:border-neutral-800 pl-4 md:border-l-0 md:border-t-2 md:pt-4 md:pl-0">

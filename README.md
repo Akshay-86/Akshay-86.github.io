@@ -36,10 +36,14 @@ The terminal isn't just cosmetic — it's a fully interactive command-line inter
 | `style <name>` | Switch UI theme |
 | `enable boot` | Configure boot sequence |
 | `whoami` | Display current user |
-| `sudo` | 🔒 Admin authentication (SHA-256) |
-| `add project` | 🔓 Admin: add local projects interactively |
+| `sudo` | 🔒 Admin authentication (Firestore-backed) |
+| `add project` | 🔓 Admin: save projects to cloud |
+| `edit project <name>` | 🔓 Admin: edit cloud project details |
+| `delete project <name>` | 🔓 Admin: remove cloud project |
+| `list-local` | 🔓 Admin: view only cloud projects |
+| `passwd` | 🔓 Admin: change admin password |
 | `exit` | Leave admin mode |
-| `clearcookies` | 🧹 Clear all stored data (hidden) |
+| `clearcookies` | 🧹 Clear all stored local data (hidden) |
 
 **Shell features:**
 - ⬆️⬇️ Arrow key command history
@@ -49,11 +53,11 @@ The terminal isn't just cosmetic — it's a fully interactive command-line inter
 - Masked password input (no browser save prompts)
 - Admin mode with red `root@` prompt
 
-### 🔐 Sudo & Local Projects
-Add projects not on GitHub directly from the terminal:
-1. `sudo` → enter password → admin access granted
+### 🔐 Sudo & Cloud Projects
+Add projects not on GitHub directly from the terminal. They sync across all your devices using Firebase:
+1. `sudo` → enter password → admin access granted (first time sets the password!)
 2. `add project` → interactive prompts for name, language, description, dates, tags
-3. Projects persist in localStorage and appear alongside GitHub repos with `[LOCAL]` or `[PRIVATE]` tags
+3. Projects persist in Firebase Firestore and appear alongside GitHub repos with `[LOCAL]` or `[PRIVATE]` tags
 
 ### 🚀 Boot Sequence
 First-time visitors see a cinematic boot animation. Configurable via `enable boot`:
@@ -73,8 +77,8 @@ Every theme includes a mobile-optimized hamburger menu with theme-matched stylin
 - **Styling:** TailwindCSS v4
 - **Hosting:** GitHub Pages
 - **API:** GitHub REST API (public repos, commits)
-- **Storage:** localStorage (style, theme, boot prefs, local projects)
-- **Security:** SHA-256 password hashing (Web Crypto API)
+- **Database:** Firebase Firestore (syncs projects & admin hash)
+- **Storage:** localStorage (style, theme, boot prefs)
 
 ---
 
@@ -96,11 +100,10 @@ npm run build
 ```
 
 ### Set Admin Password
-```bash
-python encode_password.py
-# Enter your password → copy the SHA-256 hash
-# Paste into src/components/ui/TerminalUI.js line ~14
-```
+1. Visit your live site and switch to the Terminal UI.
+2. Type `sudo` and press Enter.
+3. It will state that no password is set yet. Type your desired password.
+4. It is now securely hashed via SHA-256 and stored in your Firebase database! Future logins will require this password. You can change it later using the `passwd` command.
 
 ---
 
@@ -130,10 +133,11 @@ src/
 
 ## 📋 TODO
 
-- [ ] **Edit local projects** — modify previously added projects from terminal
-- [ ] **Delete local projects** — remove local projects via terminal command
-- [ ] **GitHub token integration** — display private repos using read-only PAT
-- [ ] **Resume download** — generate and serve PDF resume
+- [x] **Edit local projects** — modify previously added projects from terminal
+- [x] **Delete local projects** — remove local projects via terminal command
+- [x] **Firebase Integration** — sync local projects across devices
+- [x] **GitHub token integration** — display private repos using `.env.local`
+- [ ] **Resume download** — place `resume.pdf` in `public/` directory (UI buttons are ready)
 
 ---
 

@@ -15,7 +15,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
   const allProjects = [...(publicProjects || []), ...(privateProjects || [])];
 
   const [history, setHistory] = useState([
-    { type: "system", content: "Welcome to Portfolio OS v1.0.0" },
+    { type: "system", content: "Welcome to Portfolio OS v0.0.1" },
     { type: "system", content: "Type 'help' to see a list of available commands." },
   ]);
   const [inputDir, setInputDir] = useState("~");
@@ -38,7 +38,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     "about", "skills", "experience", "achievements", "contact",
     "projects", "fetch", "theme", "style", "enable", "refresh"
   ];
-  const ADMIN_COMMANDS = ["add project", "edit project", "delete project", "passwd"];
+  const ADMIN_COMMANDS = ["add project", "edit project", "delete project", "passwd", "list-local"];
   const CAT_FILES = ["about.txt", "skills.json", "experience.log", "achievements.dat", "contact.cfg"];
   const CD_DIRS = ["~", "projects", ".."];
 
@@ -85,87 +85,125 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
 
   // Tab autocomplete
   const handleTabComplete = (currentInput) => {
-    const parts = currentInput.trim().split(" ");
+    // Use the raw input to determine parts, but trim internal extra spaces if any
+    // For completion, we care about the structure [cmd] [arg1] [arg2]
+    const parts = currentInput.split(" ").filter((p, i, arr) => p !== "" || i === arr.length - 1);
+    const lastPart = parts[parts.length - 1].toLowerCase();
+
+    // 1st part completion (commands)
     if (parts.length === 1) {
       const partial = parts[0].toLowerCase();
       if (!partial) return currentInput;
-      const allCmds = isAdmin ? [...ALL_COMMANDS, "add"] : ALL_COMMANDS;
+
+      const adminCmds = ["add", "edit", "delete", "passwd", "list-local"];
+      const allCmds = isAdmin ? [...ALL_COMMANDS, ...adminCmds] : ALL_COMMANDS;
       const matches = allCmds.filter(c => c.startsWith(partial));
-      if (matches.length === 1) return matches[0];
+
+      if (matches.length === 1) {
+        const cmd = matches[0];
+        // Commands that expect arguments get a trailing space
+        const needsArgs = ["cd", "cat", "theme", "style", "enable", "add", "edit", "delete"].includes(cmd);
+        return needsArgs ? `${cmd} ` : cmd;
+      }
+
       if (matches.length > 1) {
-        setHistory(prev => [...prev,
-        {
+        setHistory(prev => [...prev, {
           type: "output", content: (
             <div className="flex flex-wrap gap-3">
               {matches.map(m => <span key={m} className="text-blue-400 dark:text-blue-300">{m}</span>)}
             </div>
           )
-        }
-        ]);
+        }]);
         setShouldScroll(true);
-        return currentInput;
       }
       return currentInput;
     }
+
+    // 2nd part completion (arguments)
     if (parts.length === 2) {
       const cmd = parts[0].toLowerCase();
       const partial = parts[1].toLowerCase();
+
       if (cmd === "cat") {
         const matches = CAT_FILES.filter(f => f.startsWith(partial));
         if (matches.length === 1) return `${cmd} ${matches[0]}`;
         if (matches.length > 1) {
-          setHistory(prev => [...prev,
-          {
+          setHistory(prev => [...prev, {
             type: "output", content: (
               <div className="flex flex-wrap gap-3">
                 {matches.map(m => <span key={m} className="text-blue-400 dark:text-blue-300">{m}</span>)}
               </div>
             )
-          }
-          ]);
+          }]);
           setShouldScroll(true);
         }
         return currentInput;
       }
+
       if (cmd === "cd") {
         const matches = CD_DIRS.filter(d => d.startsWith(partial));
         if (matches.length === 1) return `${cmd} ${matches[0]}`;
         return currentInput;
       }
+
       if (cmd === "theme") {
         const opts = ["dark", "light"];
         const matches = opts.filter(o => o.startsWith(partial));
         if (matches.length === 1) return `${cmd} ${matches[0]}`;
         return currentInput;
       }
+
       if (cmd === "style") {
         const matches = STYLES.filter(s => s.startsWith(partial));
         if (matches.length === 1) return `${cmd} ${matches[0]}`;
         if (matches.length > 1) {
-          setHistory(prev => [...prev,
-          {
+          setHistory(prev => [...prev, {
             type: "output", content: (
               <div className="flex flex-wrap gap-3">
                 {matches.map(m => <span key={m} className="text-blue-400 dark:text-blue-300">{m}</span>)}
               </div>
             )
-          }
-          ]);
+          }]);
           setShouldScroll(true);
         }
         return currentInput;
       }
+
       if (cmd === "enable") {
         const matches = ["boot"].filter(o => o.startsWith(partial));
         if (matches.length === 1) return `${cmd} ${matches[0]}`;
         return currentInput;
       }
-      if (cmd === "add" && isAdmin) {
+
+      if (["add", "edit", "delete"].includes(cmd) && isAdmin) {
         const matches = ["project"].filter(o => o.startsWith(partial));
-        if (matches.length === 1) return `${cmd} ${matches[0]}`;
+        if (matches.length === 1) return `${cmd} ${matches[0]} `;
         return currentInput;
       }
     }
+
+    // 3rd part completion (project names)
+    if (parts.length === 3) {
+      const cmd = parts[0].toLowerCase();
+      const sub = parts[1].toLowerCase();
+      const partial = parts[2].toLowerCase();
+
+      if ((cmd === "edit" || cmd === "delete") && sub === "project" && isAdmin) {
+        const matches = (firebaseProjects || []).filter(p => p.name.toLowerCase().startsWith(partial)).map(p => p.name);
+        if (matches.length === 1) return `${cmd} ${sub} ${matches[0]}`;
+        if (matches.length > 1) {
+          setHistory(prev => [...prev, {
+            type: "output", content: (
+              <div className="flex flex-wrap gap-3">
+                {matches.map(m => <span key={m} className="text-blue-400 dark:text-blue-300">{m}</span>)}
+              </div>
+            )
+          }]);
+          setShouldScroll(true);
+        }
+      }
+    }
+
     return currentInput;
   };
 
@@ -249,27 +287,32 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">Authentication cancelled.</span>) });
         setMode("normal");
       } else {
-        const hash = await sha256(cmd);
-        const storedHash = await getAdminHash?.();
-        if (storedHash && hash === storedHash) {
-          setIsAdmin(true);
-          newHist.push({
-            type: "output", content: (
-              <div>
-                <div className="text-green-600 dark:text-green-400">✓ Authentication successful. Admin access granted.</div>
-                <div className="text-slate-500 dark:text-gray-500 mt-1">Type <span className="font-bold text-blue-600 dark:text-blue-400">help</span> to see unlocked commands.</div>
-              </div>
-            )
-          });
-          setMode("normal");
-        } else if (!storedHash) {
-          newHist.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">No admin password set yet. Setting this as the admin password...</span>) });
-          await setAdminHash?.(hash);
-          setIsAdmin(true);
-          newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Admin password set. Access granted. Type <span className="font-bold">help</span> for commands.</span>) });
-          setMode("normal");
-        } else {
-          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Authentication failed. Incorrect password.</span>) });
+        try {
+          const hash = await sha256(cmd);
+          const storedHash = await getAdminHash?.();
+          if (storedHash && hash === storedHash) {
+            setIsAdmin(true);
+            newHist.push({
+              type: "output", content: (
+                <div>
+                  <div className="text-green-600 dark:text-green-400">✓ Authentication successful. Admin access granted.</div>
+                  <div className="text-slate-500 dark:text-gray-500 mt-1">Type <span className="font-bold text-blue-600 dark:text-blue-400">help</span> to see unlocked commands.</div>
+                </div>
+              )
+            });
+            setMode("normal");
+          } else if (!storedHash) {
+            newHist.push({ type: "output", content: (<span className="text-yellow-600 dark:text-yellow-400">No admin password set yet. Setting this as the admin password...</span>) });
+            await setAdminHash?.(hash);
+            setIsAdmin(true);
+            newHist.push({ type: "output", content: (<span className="text-green-600 dark:text-green-400">✓ Admin password set. Access granted. Type <span className="font-bold">help</span> for commands.</span>) });
+            setMode("normal");
+          } else {
+            newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Authentication failed. Incorrect password.</span>) });
+            setMode("normal");
+          }
+        } catch (e) {
+          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Network error: {e.message || "Failed to reach database."}</span>) });
           setMode("normal");
         }
       }
@@ -281,14 +324,19 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     // Password change modes
     if (mode === "passwd-old") {
       const newHist = [...history, { type: "input-masked", content: "Current password: ********" }];
-      const hash = await sha256(cmd);
-      const storedHash = await getAdminHash?.();
-      if (hash !== storedHash) {
-        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Current password is incorrect.</span>) });
+      try {
+        const hash = await sha256(cmd);
+        const storedHash = await getAdminHash?.();
+        if (hash !== storedHash) {
+          newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Current password is incorrect.</span>) });
+          setMode("normal");
+        } else {
+          setPasswdTemp({ oldHash: hash });
+          setMode("passwd-new");
+        }
+      } catch (e) {
+        newHist.push({ type: "output", content: (<span className="text-red-500 dark:text-red-400">✗ Network error: {e.message || "Failed to reach database."}</span>) });
         setMode("normal");
-      } else {
-        setPasswdTemp({ oldHash: hash });
-        setMode("passwd-new");
       }
       setHistory(newHist);
       setShouldScroll(true);
@@ -636,6 +684,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
                     <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">add project</td><td>Add a project to cloud</td></tr>
                     <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">edit project</td><td>&lt;name&gt; — Edit a cloud project</td></tr>
                     <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">delete project</td><td>&lt;name&gt; — Delete a cloud project</td></tr>
+                    <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">list-local</td><td>Display only cloud-added projects</td></tr>
                     <tr><td className="text-red-500 dark:text-red-400 pr-4 font-bold align-top">passwd</td><td>Change admin password</td></tr>
                   </>
                 )}
@@ -919,6 +968,33 @@ STATUS: Open to opportunities`}
             </div>
           </div>
         );
+        break;
+
+      case "list-local":
+        if (!isAdmin) {
+          output = (<span className="text-red-500 dark:text-red-400">Permission denied. Use <span className="font-bold">sudo</span> to authenticate first.</span>);
+        } else if (!firebaseProjects || firebaseProjects.length === 0) {
+          output = <div className="text-yellow-600 dark:text-yellow-400 italic">No cloud projects added yet. Use &apos;add project&apos; to create one.</div>;
+        } else {
+          output = (
+            <div className="flex flex-col gap-2">
+              <div className="text-purple-600 dark:text-purple-400 font-bold underline">Cloud-Stored Projects:</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                {firebaseProjects.map((repo) => (
+                  <div key={repo.id} className="border border-purple-600 dark:border-purple-800 p-2 rounded bg-purple-50/30 dark:bg-purple-900/10">
+                    <div className="font-bold text-purple-700 dark:text-purple-400">
+                      {repo.name} <span className="text-xs ml-1 font-normal opacity-70">[{(repo.localTag || "LOCAL").toUpperCase()}]</span>
+                    </div>
+                    <div className="text-slate-600 dark:text-gray-300 text-sm">{repo.description || "No description."}</div>
+                    <div className="text-purple-600/70 dark:text-purple-400/50 text-xs mt-1 font-mono">
+                      {repo.startTime} — {repo.endTime || "Ongoing"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
         break;
 
       case "add":

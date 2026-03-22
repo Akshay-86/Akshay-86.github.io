@@ -10,6 +10,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  getDocFromServer,
   setDoc,
 } from "firebase/firestore";
 
@@ -39,7 +40,9 @@ export async function fetchProjects() {
 
 export async function addProject(project) {
   try {
-    const docRef = await addDoc(collection(db, "projects"), {
+    // Sanitize project name for Firestore document ID (slashes are not allowed in IDs)
+    const docId = project.name.replace(/\//g, "-");
+    await setDoc(doc(db, "projects", docId), {
       name: project.name,
       description: project.description || "",
       language: project.language || "Unknown",
@@ -52,7 +55,7 @@ export async function addProject(project) {
       private: false,
       createdAt: new Date().toISOString(),
     });
-    return docRef.id;
+    return docId;
   } catch (e) {
     console.error("Firebase addProject error:", e);
     throw e;
@@ -83,14 +86,14 @@ const ADMIN_DOC = "admin-config";
 
 export async function getAdminHash() {
   try {
-    const snap = await getDoc(doc(db, "config", ADMIN_DOC));
+    const snap = await getDocFromServer(doc(db, "config", ADMIN_DOC));
     if (snap.exists()) {
       return snap.data().passwordHash || null;
     }
     return null;
   } catch (e) {
     console.error("Firebase getAdminHash error:", e);
-    return null;
+    throw new Error("Failed to reach database. You may be offline.");
   }
 }
 
