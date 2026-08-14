@@ -25,12 +25,64 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
   const [showBootBanner, setShowBootBanner] = useState(false);
   const [bannerDismissing, setBannerDismissing] = useState(false);
 
+  const [livePublicProjects, setLivePublicProjects] = useState(publicProjects || []);
+
   // Load Firebase projects on mount
   useEffect(() => {
     fbFetchProjects().then((projects) => {
       setFirebaseProjects(projects);
     });
   }, []);
+
+  // Live client-side fetch of GitHub public repos on mount for instant real-time updates
+  useEffect(() => {
+    async function fetchLiveGitHubRepos() {
+      try {
+        const res = await fetch("https://api.github.com/users/Akshay-86/repos?sort=updated&per_page=100");
+        if (res.ok) {
+          const fetchedRepos = await res.json();
+          const initialMap = new Map((publicProjects || []).map((p) => [p.id || p.name, p]));
+
+          const merged = await Promise.all(
+            fetchedRepos.map(async (repo) => {
+              const existing = initialMap.get(repo.id) || initialMap.get(repo.name);
+              if (existing && existing.recentCommits) {
+                return { ...repo, recentCommits: existing.recentCommits };
+              }
+              try {
+                const isFork = repo.fork;
+                const perPage = isFork ? 20 : 4;
+                const commitsRes = await fetch(
+                  `https://api.github.com/repos/${repo.owner?.login || "Akshay-86"}/${repo.name}/commits?per_page=${perPage}`
+                );
+                if (commitsRes.ok) {
+                  const commits = await commitsRes.json();
+                  if (isFork) {
+                    const userCommits = (commits || []).filter(
+                      (c) =>
+                        c.author?.login?.toLowerCase() === "akshay-86" ||
+                        c.committer?.login?.toLowerCase() === "akshay-86"
+                    );
+                    return { ...repo, recentCommits: userCommits.slice(0, 4) };
+                  }
+                  return { ...repo, recentCommits: commits };
+                }
+              } catch (e) {
+                // Silently ignore commit fetch failures for individual repos
+              }
+              return { ...repo, recentCommits: [] };
+            })
+          );
+
+          setLivePublicProjects(merged);
+        }
+      } catch (err) {
+        console.warn("Client-side GitHub revalidation skipped (using pre-rendered repos).", err);
+      }
+    }
+
+    fetchLiveGitHubRepos();
+  }, [publicProjects]);
 
   useEffect(() => {
     const bootPref = localStorage.getItem("portfolio-boot");
@@ -127,7 +179,7 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
     }
   };
 
-  const allPublic = [...(publicProjects || []), ...firebaseProjects];
+  const allPublic = [...(livePublicProjects || []), ...firebaseProjects];
 
   const controls = {
     themeMode, setThemeMode,
