@@ -126,7 +126,8 @@ src/
 │       ├── BentoUI.js       # Card grid theme
 │       ├── CyberUI.js       # Cyberpunk neon theme
 │       └── TerminalUI.js    # Full CLI terminal theme
-└── encode_password.py       # SHA-256 password encoder utility
+└── lib/
+    └── firebase.js          # Firebase Firestore configuration and CRUD
 ```
 
 ---

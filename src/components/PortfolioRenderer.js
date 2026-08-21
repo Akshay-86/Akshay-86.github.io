@@ -46,7 +46,8 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
           const merged = await Promise.all(
             fetchedRepos.map(async (repo) => {
               const existing = initialMap.get(repo.id) || initialMap.get(repo.name);
-              if (existing && existing.recentCommits) {
+              const isUnchanged = existing && existing.recentCommits && existing.recentCommits.length > 0 && existing.pushed_at === repo.pushed_at;
+              if (isUnchanged) {
                 return { ...repo, recentCommits: existing.recentCommits };
               }
               try {
