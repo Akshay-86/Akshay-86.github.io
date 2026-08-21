@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Akshay | Portfolio",
-  description: "Full-stack developer portfolio — Computer Engineering Student building simple, efficient, and scalable web applications.",
+  title: "Akshay | Native App Developer & Aspiring Systems Engineer",
+  description: "Native Android Developer & Aspiring Systems Engineer — Building robust Android apps today with an ultimate dream of contributing to Linux and OS-level open source.",
 };
 
 import { ThemeProvider } from "../components/ThemeProvider";

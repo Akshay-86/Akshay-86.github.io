@@ -696,6 +696,15 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         break;
 
       case "clear":
+        const clearTarget = args[1]?.toLowerCase();
+        if (clearTarget === "cookies" || clearTarget === "storage" || clearTarget === "cache" || clearTarget === "data") {
+          localStorage.clear();
+          output = (<span className="text-green-600 dark:text-green-400">✓ All stored preferences and session data cleared. Reloading...</span>);
+          newHistory.push({ type: "output", content: output });
+          setHistory(newHistory);
+          setTimeout(() => window.location.reload(), 600);
+          return;
+        }
         setHistory([]);
         setShouldScroll(false);
         return;
@@ -771,11 +780,15 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         output = `enable: unknown target "${args[1] || ""}". Use: enable boot`;
         break;
 
-      // Hidden: clear all localStorage data (for testing)
+      // Clear all stored localStorage preferences and reload
       case "clearcookies":
+      case "cleardata":
         localStorage.clear();
-        output = (<span className="text-green-600 dark:text-green-400">✓ All stored data cleared. Reload the page for changes to take effect.</span>);
-        break;
+        output = (<span className="text-green-600 dark:text-green-400">✓ All stored preferences and session data cleared. Reloading...</span>);
+        newHistory.push({ type: "output", content: output });
+        setHistory(newHistory);
+        setTimeout(() => window.location.reload(), 600);
+        return;
 
       case "refresh":
         output = (<span className="text-green-600 dark:text-green-400">Refreshing page...</span>);
@@ -857,41 +870,44 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         } else if (file === "about.txt") {
           output = (
             <div className="text-green-600 dark:text-green-300 whitespace-pre-wrap break-words">
-              {`Hello, I am Akshay.\nI am a 3rd-year diploma student passionate about software development.\nI enjoy building Android applications with Java and exploring the Next.js ecosystem.\nMy focus lies at the intersection of frontend performance and scalable backend architecture.\nI enjoy building systems that solve real problems.`}
+              {`Hello, I am Akshay.\nComputer Science & Engineering undergraduate at SRKR Engineering College (Lateral Entry), with a Diploma in CME from Andhra Polytechnic, Kakinada (2023–2026).\n\nMy current craft is native Android application development using Kotlin and Java. Long term, I am drawn to systems-level engineering just above the hardware layer — striving toward open-source contributions to the Linux kernel.`}
             </div>
           );
         } else if (file === "skills.json") {
           output = (
             <div className="text-yellow-600 dark:text-yellow-300 whitespace-pre-wrap break-words">
               {JSON.stringify({
-                frontend: ["HTML", "CSS", "JavaScript", "React", "Next.js", "TailwindCSS"],
-                backend: ["Java", "Node.js", "NextJS API"],
-                database: ["MySQL", "MongoDB", "PostgreSQL"],
-                tools: ["Git", "GitHub", "Android Studio"]
+                mobile_and_native: ["Kotlin", "Java", "Android Studio", "Android SDK"],
+                core_and_systems: ["Python", "C", "Systems Concepts"],
+                databases_and_cloud: ["MariaDB", "MySQL", "Firebase Firestore", "Google Drive API"],
+                tools_and_web: ["Git", "GitHub", "Basic Web (HTML/CSS/PHP)", "Next.js / Tailwind (AI)"]
               }, null, 2)}
             </div>
           );
         } else if (file === "experience.log") {
           output = (
             <div className="text-cyan-600 dark:text-cyan-300 whitespace-pre-wrap break-words">
-              {`[PRESENT] Software Developer Trainee @ Bhairav Robotics
-  → Refining craftsmanship through real-world system architecture.
+              {`[2026 - PRESENT] B.Tech in CSE (2nd Year) @ SRKR Engineering College, Bhimavaram
+  → Lateral entry undergraduate building on core computing fundamentals, algorithms, and systems architecture.
 
-[2023 - PRESENT] Open Source Contributor @ GitHub
-  → Contributing to robust open-source projects, learning PRs and refactoring.
+[2026] Industrial Internship Trainee @ Bhairav Robotics, Kakinada
+  → Completed hands-on software development training, project workflows, and applied programming practice.
 
-[2021 - 2024] Computer Engineering Diploma @ Andhra Polytechnic Kakinada
-  → Formalizing CS fundamentals, algorithms, databases, and Android dev.`}
+[2023 - 2026] Diploma in Computer Engineering (CME) @ Andhra Polytechnic, Kakinada
+  → Built strong foundations in programming fundamentals, data structures, relational databases, and application development.`}
             </div>
           );
         } else if (file === "achievements.dat") {
           output = (
             <div className="text-yellow-600 dark:text-yellow-300 whitespace-pre-wrap break-words">
-              {`🏆 Technical Certification
-  → Advanced full-stack mastery certificates via rigorous courses.
+              {`🐧 The Linux Quest (Ultimate Mission)
+  → Dedicated to giving back to the global open-source community, with the ultimate dream of landing a contribution in the Linux kernel.
 
-🚀 Hackathon Runs
-  → Rapid translation of algorithms into viable interactive systems.`}
+⚡ Native App Architecture
+  → Architected standalone native Android systems (like Mueso) with background media streaming, automated backup pipelines, and custom local storage.
+
+🏆 Industrial Internship Certification
+  → Awarded certificate of completion for final-semester industrial software development training at Bhairav Robotics, Kakinada (2026).`}
             </div>
           );
         } else if (file === "contact.cfg") {
@@ -914,28 +930,28 @@ STATUS: Open to opportunities`}
       case "about":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Loading user_profile.sys...\n> I am a 3rd-year computer engineering diploma student currently refining my craft through rigorous self-taught engineering and practical problem-solving.\n> My focus lies at the intersection of frontend performance and scalable backend architecture. I enjoy building systems that solve real problems."}
+            {"> Loading user_profile.sys...\n> CSE Undergrad (2nd Year, Lateral Entry) @ SRKR Engineering College | Diploma in CME @ Andhra Polytechnic (2023-2026).\n> Primary craft: Native Android app engineering (Kotlin, Java, Android Studio, MariaDB, MySQL, Firebase, Google Drive API).\n> Long-term mission: Systems engineering just above the hardware layer & landing an upstream contribution to the Linux kernel."}
           </div>
         );
         break;
       case "skills":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Scanning system capabilities...\n> FRONTEND: HTML, CSS, JavaScript, React, Next.js, TailwindCSS\n> BACKEND: Java, Node.js, NextJS API\n> DATABASE: MySQL, MongoDB, PostgreSQL\n> TOOLS: Git, GitHub, Android Studio"}
+            {"> Scanning system capabilities...\n> MOBILE & NATIVE: Kotlin, Java, Android Studio, Android SDK\n> CORE & SYSTEMS: Python, C, Systems Concepts\n> DATABASES & CLOUD: MariaDB, MySQL, Firebase Firestore, Google Drive API\n> TOOLS & WEB: Git, GitHub, Basic Web (HTML/CSS/PHP), Next.js / Tailwind (AI)"}
           </div>
         );
         break;
       case "experience":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Fetching career_logs.dat...\n> [PRESENT] Software Developer Trainee @ Bhairav Robotics\n> [2023 - PRESENT] Open Source Contributor @ GitHub\n> [2021 - 2024] Computer Engineering Diploma @ Andhra Polytechnic Kakinada"}
+            {"> Fetching career_logs.dat...\n> [2026 - PRESENT] B.Tech in CSE (2nd Year) @ SRKR Engineering College, Bhimavaram\n> [2026] Industrial Internship Trainee @ Bhairav Robotics, Kakinada\n> [2023 - 2026] Diploma in Computer Engineering (CME) @ Andhra Polytechnic, Kakinada"}
           </div>
         );
         break;
       case "achievements":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Decrypting trophies.bin...\n> 🏆 Technical Certification: Advanced full-stack mastery certificates.\n> 🚀 Hackathon Runs: Rapid translation of algorithms into viable systems."}
+            {"> Decrypting trophies.bin...\n> 🐧 The Linux Quest: Dedicated to open-source and landing an upstream contribution to the Linux kernel.\n> ⚡ Native App Architecture: Built high-performance Android systems (Mueso) with background streaming & backup pipelines.\n> 🏆 Industrial Internship Certification: Completed final-semester industrial software training (2026)."}
           </div>
         );
         break;

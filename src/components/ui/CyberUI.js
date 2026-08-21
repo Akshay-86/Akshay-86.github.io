@@ -70,10 +70,10 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
               AKSHAY<span className="text-cyan-500">_</span>
             </h1>
             <h2 className="text-2xl font-bold text-cyan-700 dark:text-cyan-400 tracking-widest uppercase mb-8">
-              Computer Eng Trainee // Full-Stack Op
+              Native Android Dev // Aspiring Systems Eng
             </h2>
             <p className="text-xl md:text-2xl text-cyan-800 dark:text-cyan-300 max-w-2xl leading-relaxed mb-12">
-              Building simple, efficient, and highly scalable web architectures overriding legacy systems.
+              Building robust native Android applications today, exploring low-level systems & OS internals for tomorrow.
             </p>
             
             <div className="flex flex-wrap gap-4">
@@ -94,10 +94,10 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-8">» 01_User_Profile</h2>
             <div className="text-lg md:text-xl text-cyan-800 dark:text-cyan-300 space-y-6 max-w-3xl leading-relaxed">
               <p>
-                &gt; I am a 3rd-year computer engineering diploma student currently advancing my baseline capabilities through rigorous self-taught engineering frameworks.
+                &gt; Computer Science & Engineering undergraduate at SRKR Engineering College (Lateral Entry, 2nd Year), following completion of Diploma in Computer Engineering from Andhra Polytechnic, Kakinada (2023–2026).
               </p>
               <p>
-                &gt; I execute on building systems that solve <strong className="text-cyan-950 dark:text-white uppercase">real organizational problems</strong> rather than duplicating tutorial arrays. When compiling code, I process pure architectural logic.
+                &gt; Currently focused on <strong className="text-cyan-950 dark:text-white uppercase">native Android application development</strong> using Kotlin, Java, and Android Studio with clean local/cloud storage. Long term, driving toward systems-level engineering just above the hardware layer — targeting upstream contributions to the <strong className="text-cyan-950 dark:text-white uppercase">Linux kernel</strong>.
               </p>
             </div>
           </ScrollReveal>
@@ -109,10 +109,10 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 02_Capabilities</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                {[
-                 { id: "SYS_FRONT", title: "Frontend", data: ["HTML", "CSS", "JS", "React", "Next.js", "Tailwind"] },
-                 { id: "SYS_BACK", title: "Backend", data: ["Java", "Node.js", "Next API"] },
-                 { id: "SYS_DATA", title: "Database", data: ["MySQL", "MongoDB", "PostgreSQL"] },
-                 { id: "SYS_TOOL", title: "Tools", data: ["Git", "GitHub", "Android Studio"] },
+                 { id: "SYS_APP", title: "Mobile & Native", data: ["Kotlin", "Java", "Android Studio", "Android SDK"] },
+                 { id: "SYS_CORE", title: "Core & Systems", data: ["Python", "C", "Systems Concepts"] },
+                 { id: "SYS_DATA", title: "Databases & Cloud", data: ["MariaDB", "MySQL", "Firebase", "Drive AppData"] },
+                 { id: "SYS_TOOL", title: "Tools & Web", data: ["Git & GitHub", "HTML / CSS / PHP", "Next.js / Tailwind (AI)"] },
                ].map((module) => (
                  <div key={module.id} className="border border-cyan-300 dark:border-cyan-500/30 bg-cyan-50 dark:bg-[#050510]/80 p-6 group hover:border-cyan-500 dark:hover:border-[#00f0ff] transition-colors relative">
                     <div className="absolute top-0 right-0 p-2 text-[10px] text-cyan-400 opacity-50">{module.id}</div>
@@ -227,9 +227,9 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 04_Mission_Logs</h2>
             <div className="border-l-2 border-cyan-300 dark:border-cyan-500/30 pl-8 space-y-12 relative">
                {[
-                 { year: "PRESENT", role: "Software Developer Trainee", company: "Bhairav Robotics", desc: "Executing real-world system architecture integrations into corporate sectors." },
-                 { year: "2023_ONWARD", role: "Open Source Protocol", company: "GitHub Global", desc: "Injecting architectural pull requests into existing robust infrastructures." },
-                 { year: "2021_2024", role: "Computer Eng Protocol", company: "Andhra Polytechnic", desc: "Formalizing base logic algorithms and hardware-software interaction bridges." },
+                 { year: "2026_PRESENT", role: "B.Tech in CSE (2nd Year)", company: "SRKR Eng College, Bhimavaram", desc: "Lateral entry undergraduate analyzing advanced systems architecture, OS internals, and algorithmic computation." },
+                 { year: "2026", role: "Industrial Internship Trainee", company: "Bhairav Robotics, Kakinada", desc: "Executed industrial software development internship protocols covering project lifecycles and applied engineering." },
+                 { year: "2023_2026", role: "Diploma in Computer Eng (CME)", company: "Andhra Polytechnic, Kakinada", desc: "Formalized foundational computer engineering, direct hardware-software logic bridges, databases, and application pipelines." },
                ].map((job, idx) => (
                  <div key={idx} className="relative group">
                     <div className="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-cyan-100 dark:bg-black border-2 border-cyan-500 dark:border-[#00f0ff] group-hover:bg-cyan-500 dark:group-hover:bg-[#00f0ff] dark:group-hover:shadow-[0_0_10px_#00f0ff] transition-all"></div>
@@ -248,14 +248,14 @@ export default function CyberUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-2xl font-black text-cyan-900 dark:text-[#00f0ff] tracking-widest uppercase mb-12">» 05_Acquired_Assets</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                <div className="bg-cyan-50 dark:bg-black p-8 border border-cyan-300 dark:border-cyan-500/30 hover:border-cyan-600 dark:hover:border-[#00f0ff] transition-colors relative group">
-                  <div className="w-12 h-12 bg-cyan-200 dark:bg-cyan-900/40 text-cyan-800 dark:text-[#00f0ff] flex items-center justify-center text-2xl mb-6">🏆</div>
-                  <h3 className="text-xl font-bold text-cyan-950 dark:text-white uppercase mb-2">Technical Certs</h3>
-                  <p className="text-cyan-800 dark:text-cyan-500 text-sm">Advanced full-stack mastery certificates via massive rigorous logic courses.</p>
+                  <div className="w-12 h-12 bg-cyan-200 dark:bg-cyan-900/40 text-cyan-800 dark:text-[#00f0ff] flex items-center justify-center text-2xl mb-6">🐧</div>
+                  <h3 className="text-xl font-bold text-cyan-950 dark:text-white uppercase mb-2">The Linux Quest</h3>
+                  <p className="text-cyan-800 dark:text-cyan-500 text-sm">Long-term ambition to land upstream contributions to the Linux kernel and open source.</p>
                </div>
                <div className="bg-cyan-50 dark:bg-black p-8 border border-cyan-300 dark:border-cyan-500/30 hover:border-cyan-600 dark:hover:border-[#00f0ff] transition-colors relative group">
-                  <div className="w-12 h-12 bg-cyan-200 dark:bg-cyan-900/40 text-cyan-800 dark:text-[#ff003c] flex items-center justify-center text-2xl mb-6">⚠️</div>
-                  <h3 className="text-xl font-bold text-cyan-950 dark:text-white uppercase mb-2">Hackathon Runtimes</h3>
-                  <p className="text-cyan-800 dark:text-cyan-500 text-sm">Translating raw logic into viable interactive systems rapidly under severe constraints.</p>
+                  <div className="w-12 h-12 bg-cyan-200 dark:bg-cyan-900/40 text-cyan-800 dark:text-[#ff003c] flex items-center justify-center text-2xl mb-6">⚡</div>
+                  <h3 className="text-xl font-bold text-cyan-950 dark:text-white uppercase mb-2">Native App Architecture</h3>
+                  <p className="text-cyan-800 dark:text-cyan-500 text-sm">Engineered standalone high-performance Android systems (Mueso) with background streaming and automated backup pipelines.</p>
                </div>
             </div>
           </ScrollReveal>

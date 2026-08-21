@@ -62,10 +62,10 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
         </ScrollReveal>
         <ScrollReveal animation="fade-left" delay={200}>
           <h2 className="text-2xl md:text-3xl font-light text-slate-600 dark:text-neutral-400 mb-6">
-            Computer Engineering Student <span className="text-slate-300 dark:text-neutral-700 mx-2">|</span> Full-Stack Developer
+            Native Android Developer <span className="text-slate-300 dark:text-neutral-700 mx-2">|</span> Aspiring Systems Engineer
           </h2>
           <p className="text-xl md:text-2xl font-medium text-slate-800 dark:text-neutral-300 max-w-2xl leading-relaxed mb-12">
-            I build simple, efficient, and highly scalable web applications.
+            Building robust native Android applications today, exploring low-level systems & OS internals for tomorrow.
           </p>
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={300}>
@@ -86,10 +86,10 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-8">01. About Me</h2>
           <div className="text-xl md:text-2xl font-light leading-relaxed text-slate-600 dark:text-neutral-400 space-y-6">
             <p>
-              I am a 3rd-year computer engineering diploma student currently refining my craft through rigorous self-taught engineering and practical problem-solving.
+              I am a Computer Science & Engineering undergraduate at SRKR Engineering College (Lateral Entry), with a Diploma in CME from Andhra Polytechnic, Kakinada (2023–2026).
             </p>
             <p>
-              My focus lies at the absolute intersection of frontend performance and scalable backend architecture. I enjoy building systems that solve <strong className="font-semibold text-slate-900 dark:text-white">real problems</strong> rather than just following massive tutorials. When I code, I seek the pure logic behind complex structural requirements.
+              My current craft is <strong className="font-semibold text-slate-900 dark:text-white">native Android application development</strong> using Kotlin and Java. Long term, I am driven by <strong className="font-semibold text-slate-900 dark:text-white">systems-level engineering</strong> just above the hardware layer — striving toward open-source contributions to the <strong className="font-semibold text-slate-900 dark:text-white">Linux kernel</strong>.
             </p>
           </div>
         </ScrollReveal>
@@ -102,10 +102,10 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {[
-              { category: "Frontend", tools: ["HTML", "CSS", "JavaScript", "React", "Next.js", "TailwindCSS"] },
-              { category: "Backend", tools: ["Java", "Node.js", "NextJS API"] },
-              { category: "Database", tools: ["MySQL", "MongoDB", "PostgreSQL"] },
-              { category: "Tools", tools: ["Git", "GitHub", "Android Studio"] },
+              { category: "Mobile & Native", tools: ["Kotlin", "Java", "Android Studio", "Android SDK"] },
+              { category: "Core & Systems", tools: ["Python", "C", "Systems Concepts"] },
+              { category: "Databases & Cloud", tools: ["MariaDB", "MySQL", "Firebase Firestore", "Google Drive API"] },
+              { category: "Tools & Web", tools: ["Git & GitHub", "Basic Web (HTML/CSS/PHP)", "Next.js / Tailwind (AI)"] },
             ].map((skillset, i) => (
               <div key={i}>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-neutral-800 pb-2">{skillset.category}</h3>
@@ -233,9 +233,9 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
 
           <div className="flex flex-col gap-16">
             {[
-              { role: "Software Developer Trainee", company: "Bhairav Robotics", year: "Present", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
-              { role: "Open Source Contributor", company: "GitHub Global", year: "2023 — Present", desc: "Started deeply contributing to robust open-source projects on GitHub, learning complex pull requests, merges, and systemic refactoring." },
-              { role: "Engineering Diploma", company: "Andhra Polytechnic Kakinada", year: "2021 — 2024", desc: "Formalizing computer science fundamentals traversing algorithms, databases, Android application mapping, and core logic." },
+              { role: "B.Tech in CSE (2nd Year)", company: "SRKR Engineering College, Bhimavaram", year: "2026 — Present", desc: "Lateral entry undergraduate building on core computing fundamentals, algorithms, and systems architecture." },
+              { role: "Industrial Internship Trainee", company: "Bhairav Robotics, Kakinada", year: "2026", desc: "Completed hands-on software development training, project workflows, and applied programming practice." },
+              { role: "Diploma in Computer Engineering (CME)", company: "Andhra Polytechnic, Kakinada", year: "2023 — 2026", desc: "Built strong foundations in programming fundamentals, data structures, relational databases, and application development." },
             ].map((job, idx) => (
                <div key={idx} className="flex flex-col md:flex-row gap-4 md:gap-12 items-start group">
                  <div className="w-full md:w-1/4 shrink-0 pt-1 border-t-2 border-transparent group-hover:border-slate-300 dark:group-hover:border-neutral-600 transition-colors duration-500">
@@ -258,14 +258,14 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
           <h2 className="text-sm uppercase tracking-widest text-slate-400 dark:text-neutral-500 font-bold mb-12">05. Achievements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <div className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 p-8 rounded-2xl">
-                <span className="text-3xl mb-4 block">🏆</span>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Technical Certification</h3>
-                <p className="text-slate-500 dark:text-neutral-400 leading-relaxed text-sm">Completed advanced certifications displaying mastery over core computer science and web topologies.</p>
+                <span className="text-3xl mb-4 block">🐧</span>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">The Linux Quest (Ultimate Mission)</h3>
+                <p className="text-slate-500 dark:text-neutral-400 leading-relaxed text-sm">Dedicated to giving back to the global open-source community, with the ultimate dream of landing a contribution in the Linux kernel.</p>
              </div>
              <div className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 p-8 rounded-2xl">
-                <span className="text-3xl mb-4 block">🚀</span>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Hackathon / Builds</h3>
-                <p className="text-slate-500 dark:text-neutral-400 leading-relaxed text-sm">Actively engaging in intense build sessions to translate theoretical algorithms into functional apps.</p>
+                <span className="text-3xl mb-4 block">⚡</span>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Native App Architecture</h3>
+                <p className="text-slate-500 dark:text-neutral-400 leading-relaxed text-sm">Architected standalone native Android systems (like Mueso) with background media streaming, automated backup pipelines, and custom local storage.</p>
              </div>
           </div>
         </ScrollReveal>
@@ -279,7 +279,7 @@ export default function MinimalUI({ publicProjects, privateProjects, controls })
             I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6 items-center">
-             <a href="mailto:hello@example.com" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
+             <a href="mailto:nalliakshaykumar@gmail.com" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
                Say Hello
              </a>
              <button className="px-8 py-4 bg-slate-100 dark:bg-neutral-900 text-slate-900 dark:text-white border border-slate-200 dark:border-neutral-800 font-bold rounded-full w-full sm:w-auto hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all">

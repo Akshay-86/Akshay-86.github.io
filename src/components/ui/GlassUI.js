@@ -72,10 +72,10 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
               Akshay.
             </h1>
             <h2 className="text-2xl md:text-4xl font-light text-slate-600 dark:text-slate-400 mb-8">
-              Computer Engineering Student | Full-Stack Developer
+              Native Android Developer | Aspiring Systems Engineer
             </h2>
             <p className="text-xl md:text-2xl text-slate-700 dark:text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed">
-              I build simple, efficient, and highly scalable web applications.
+              Building robust native Android applications today, exploring low-level systems & OS internals for tomorrow.
             </p>
             <div className="flex gap-6 justify-center">
               <button className="px-8 py-4 bg-slate-900/10 dark:bg-white/10 hover:bg-slate-900/20 dark:hover:bg-white/20 backdrop-blur-md text-slate-900 dark:text-white border border-slate-900/20 dark:border-white/20 font-bold rounded-2xl shadow-lg transition-all hover:-translate-y-1" onClick={() => document.getElementById('projects')?.scrollIntoView({behavior: 'smooth'})}>
@@ -91,12 +91,12 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
             <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-8 flex items-center gap-4">
               <span className="w-8 h-px bg-slate-400 dark:bg-slate-600"></span> 01. About Me
             </h2>
-            <div className="text-xl md:text-3xl font-light leading-relaxed text-slate-700 dark:text-slate-300 space-y-8">
+            <div className="text-xl md:text-2xl font-light leading-relaxed text-slate-700 dark:text-slate-300 space-y-6">
               <p>
-                I am a 3rd-year computer engineering diploma student currently refining my craft through rigorous self-taught engineering and practical problem-solving.
+                I am a Computer Science & Engineering undergraduate at SRKR Engineering College (Lateral Entry), with a Diploma in CME from Andhra Polytechnic, Kakinada (2023–2026).
               </p>
               <p>
-                My focus lies at the absolute intersection of frontend performance and scalable backend architecture. I enjoy building systems that solve <strong className="font-semibold text-slate-900 dark:text-white">real problems</strong> rather than just following massive tutorials. When I code, I seek the pure logic behind complex structural requirements.
+                My craft centers on <strong className="font-semibold text-slate-900 dark:text-white">native Android application development</strong> with Kotlin and Java. Long term, I am drawn to <strong className="font-semibold text-slate-900 dark:text-white">systems-level programming</strong> just above the hardware layer — striving toward open-source contributions to the <strong className="font-semibold text-slate-900 dark:text-white">Linux kernel</strong>.
               </p>
             </div>
           </ScrollReveal>
@@ -110,10 +110,10 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
               {[
-                { category: "Frontend", tools: ["HTML", "CSS", "JavaScript", "React", "Next.js", "TailwindCSS"] },
-                { category: "Backend", tools: ["Java", "Node.js", "NextJS API"] },
-                { category: "Database", tools: ["MySQL", "MongoDB", "PostgreSQL"] },
-                { category: "Tools", tools: ["Git", "GitHub", "Android Studio"] },
+                { category: "Mobile & Native", tools: ["Kotlin", "Java", "Android Studio", "Android SDK"] },
+                { category: "Core & Systems", tools: ["Python", "C", "Systems Concepts"] },
+                { category: "Databases & Cloud", tools: ["MariaDB", "MySQL", "Firebase Firestore", "Google Drive API"] },
+                { category: "Tools & Web", tools: ["Git & GitHub", "Basic Web (HTML/CSS/PHP)", "Next.js / Tailwind (AI)"] },
               ].map((skillset, i) => (
                 <div key={i} className="bg-white/50 dark:bg-black/40 border border-white/40 dark:border-white/5 p-8 rounded-3xl backdrop-blur-md">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">{skillset.category}</h3>
@@ -226,9 +226,9 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
             </h2>
             <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-px before:bg-gradient-to-b before:from-transparent before:via-slate-300 dark:before:via-slate-700 before:to-transparent">
                {[
-                 { year: "Present", role: "Software Developer Trainee", company: "Bhairav Robotics", desc: "Refining craftsmanship through real-world system architecture, integrating modern tech-stacks into business solutions." },
-                 { year: "2023 - Present", role: "Open Source Contributor", company: "GitHub Ecosystem", desc: "Started deeply contributing to robust open-source projects on GitHub, learning complex pull requests, merges, and systemic refactoring." },
-                 { year: "2021 - 2024", role: "Engineering Diploma", company: "Andhra Polytechnic Kakinada", desc: "Formalizing computer science fundamentals traversing algorithms, databases, Android application mapping, and core logic." },
+                 { year: "2026 - Present", role: "B.Tech in CSE (2nd Year)", company: "SRKR Engineering College, Bhimavaram", desc: "Lateral entry undergraduate building on core computing fundamentals, algorithms, and systems architecture." },
+                 { year: "2026", role: "Industrial Internship Trainee", company: "Bhairav Robotics, Kakinada", desc: "Completed hands-on software development training, project workflows, and applied programming practice." },
+                 { year: "2023 - 2026", role: "Diploma in Computer Engineering (CME)", company: "Andhra Polytechnic, Kakinada", desc: "Built strong foundations in programming fundamentals, data structures, relational databases, and application development." },
                ].map((item, i) => (
                  <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/60 dark:border-neutral-600 bg-white/80 dark:bg-neutral-800 backdrop-blur-xl shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-slate-600 dark:text-neutral-400 font-bold text-xs ring-4 ring-slate-50 dark:ring-[#030712]">
@@ -254,14 +254,14 @@ export default function GlassUI({ publicProjects, privateProjects, controls }) {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <div className="bg-white/50 dark:bg-black/40 border border-white/50 dark:border-white/5 p-10 rounded-[2rem] flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-500">
-                  <span className="text-5xl mb-6 block drop-shadow-lg">🏆</span>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Technical Certification</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">Completed advanced certifications displaying mastery over core computer science and web topologies.</p>
+                  <span className="text-5xl mb-6 block drop-shadow-lg">🐧</span>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">The Linux Quest (Ultimate Mission)</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">Dedicated to giving back to the global open-source community, with the ultimate dream of landing a contribution in the Linux kernel.</p>
                </div>
                <div className="bg-white/50 dark:bg-black/40 border border-white/50 dark:border-white/5 p-10 rounded-[2rem] flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-500">
-                  <span className="text-5xl mb-6 block drop-shadow-lg">🚀</span>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Hackathon Frameworks</h3>
-                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">Actively engaging in intense build sessions to translate theoretical algorithms into functional apps.</p>
+                  <span className="text-5xl mb-6 block drop-shadow-lg">⚡</span>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Native App Architecture</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">Architected standalone native Android systems (like Mueso) with background media streaming, automated backup pipelines, and custom local storage.</p>
                </div>
             </div>
           </ScrollReveal>

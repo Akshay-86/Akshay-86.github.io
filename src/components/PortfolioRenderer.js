@@ -208,9 +208,9 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
   return (
     <ThemeProvider currentStyle={currentStyle}>
       {showBootBanner && (
-        <div className={`w-full z-[9999] bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 text-white text-center py-2 px-4 text-xs font-medium flex items-center justify-center gap-3 ${bannerDismissing ? "animate-[slideUp_0.4s_ease-in_forwards]" : "animate-[slideDown_0.4s_ease-out]"}`}>
-          <span>🚀 Boot sequence is disabled. Switch to <strong>Terminal</strong> UI and type <code className="bg-white/20 px-1.5 py-0.5 rounded text-[11px]">enable boot</code> to re-enable it.</span>
-          <button onClick={dismissBanner} className="text-white/80 hover:text-white font-bold text-sm ml-2 hover:scale-110 transition-transform">✕</button>
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-slate-900/95 dark:bg-neutral-900/95 backdrop-blur-xl border border-slate-700/50 dark:border-neutral-700/50 text-white text-center py-2.5 px-5 rounded-full text-xs font-medium flex items-center justify-center gap-3 shadow-2xl max-w-[90vw] ${bannerDismissing ? "animate-[slideUp_0.4s_ease-in_forwards]" : "animate-[slideDown_0.4s_ease-out]"}`}>
+          <span>🚀 Boot sequence is disabled. Type <code className="bg-white/20 px-1.5 py-0.5 rounded text-[11px] font-mono">enable boot</code> in Terminal to restore it.</span>
+          <button onClick={dismissBanner} className="text-white/70 hover:text-white font-bold text-sm ml-1 hover:scale-110 transition-transform cursor-pointer">✕</button>
         </div>
       )}
       {renderUI()}

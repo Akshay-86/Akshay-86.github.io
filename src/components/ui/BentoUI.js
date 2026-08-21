@@ -62,10 +62,10 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
           <ScrollReveal animation="fade-up" delay={100} className="md:col-span-2 lg:col-span-2 row-span-2">
             <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-neutral-800 p-8 md:p-12 rounded-[2rem] h-full flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <div>
-                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-blue-200 dark:border-blue-800/50">Computer Engineering Student</span>
+                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-blue-200 dark:border-blue-800/50">Native App Developer & Aspiring Systems Eng</span>
                 <h1 className="text-5xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white mb-6">Akshay.</h1>
                 <p className="text-xl md:text-2xl text-slate-600 dark:text-neutral-400 font-light leading-relaxed">
-                  I build simple, efficient, and highly scalable web applications pushing modern UI boundaries.
+                  Building robust native Android applications today, exploring low-level systems & OS internals for tomorrow.
                 </p>
               </div>
               <div className="mt-12 flex gap-4">
@@ -81,10 +81,10 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
             <div id="about" className="bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-indigo-600 dark:to-purple-900 p-8 md:p-10 rounded-[2rem] h-full flex flex-col justify-center text-white shadow-lg relative overflow-hidden group">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
               <h2 className="text-xl font-bold mb-4 relative z-10 flex items-center gap-2">
-                <span className="text-2xl">⚡</span> The Mindset
+                <span className="text-2xl">⚡</span> The Mission & Craft
               </h2>
               <p className="text-white/90 text-lg leading-relaxed relative z-10 font-medium">
-                I enjoy building systems that solve real problems instead of just following massive tutorials. My absolute focus lies at the intersection of frontend performance and scalable backend architecture.
+                Focusing on high-performance native Android engineering (Kotlin/Java) with a long-term passion for systems-level development just above the hardware layer — striving toward open-source contributions to the Linux kernel.
               </p>
             </div>
           </ScrollReveal>
@@ -107,7 +107,7 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Technical Toolkit
               </h2>
               <div className="flex flex-wrap gap-2">
-                {["React", "Next.js", "TailwindCSS", "Java", "Node.js", "Git", "MySQL", "Android Studio"].map(skill => (
+                {["Kotlin", "Java", "Android Studio", "Python", "C", "MariaDB", "MySQL", "Firebase", "Google Drive API", "Git", "GitHub"].map(skill => (
                   <span key={skill} className="px-3 py-1.5 bg-slate-100 dark:bg-[#222] text-slate-700 dark:text-neutral-300 rounded-lg text-xs font-bold border border-slate-200 dark:border-neutral-700">
                     {skill}
                   </span>
@@ -222,9 +222,9 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
               </h2>
               <div className="flex flex-col gap-8">
                 {[
-                  { title: "Software Developer Trainee", org: "Bhairav Robotics", time: "Present" },
-                  { title: "Open Source Contributor", org: "GitHub Ecosystem", time: "2023 - Present" },
-                  { title: "Computer Engineering Diploma", org: "Andhra Polytechnic", time: "2021 - 2024" }
+                  { title: "B.Tech in CSE (2nd Year)", org: "SRKR Engineering College, Bhimavaram", time: "2026 - Present" },
+                  { title: "Industrial Internship Trainee", org: "Bhairav Robotics, Kakinada", time: "2026" },
+                  { title: "Diploma in Computer Engineering (CME)", org: "Andhra Polytechnic, Kakinada", time: "2023 - 2026" }
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4 group">
                     <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#222] border border-slate-200 dark:border-neutral-700 flex items-center justify-center text-slate-500 dark:text-neutral-400 font-bold shrink-0 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -248,17 +248,17 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-6 rounded-2xl flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform">
-                  <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400 text-xl">🥇</div>
+                  <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400 text-xl">🐧</div>
                   <div>
-                    <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-1">Certifications</h3>
-                    <p className="text-amber-700/80 dark:text-amber-200/60 text-sm font-medium">Advanced full-stack mastery certificates via massive rigorous courses.</p>
+                    <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-1">The Linux Quest</h3>
+                    <p className="text-amber-700/80 dark:text-amber-200/60 text-sm font-medium">Ultimate ambition to contribute directly upstream to the Linux kernel and open source.</p>
                   </div>
                 </div>
                 <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 p-6 rounded-2xl flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform">
-                  <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400 text-xl">💡</div>
+                  <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl text-emerald-600 dark:text-emerald-400 text-xl">⚡</div>
                   <div>
-                    <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-1">Hackathons</h3>
-                    <p className="text-emerald-700/80 dark:text-emerald-200/60 text-sm font-medium">Translating raw logic into viable interactive systems rapidly under limits.</p>
+                    <h3 className="font-bold text-emerald-900 dark:text-emerald-100 mb-1">Native App Architecture</h3>
+                    <p className="text-emerald-700/80 dark:text-emerald-200/60 text-sm font-medium">Built high-performance Android systems (Mueso) with background streaming, audio filtering, and cloud backup pipelines.</p>
                   </div>
                 </div>
               </div>
@@ -274,10 +274,10 @@ export default function BentoUI({ publicProjects, privateProjects, controls }) {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 blur-[80px] rounded-full"></div>
             
             <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6 relative z-10">Ready to build?</h2>
-            <p className="text-xl text-slate-400 font-medium max-w-lg mb-12 relative z-10">Whether you need help architecting a Next.js system or just want to collaborate, I am currently available.</p>
+            <p className="text-xl text-slate-400 font-medium max-w-lg mb-12 relative z-10">Interested in systems development, low-level architecture, or native Android collaborations? Let's connect.</p>
             
             <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-              <a href="mailto:nalliskahykumar@gmail.com" className="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl shadow-xl hover:-translate-y-1 transition-all">
+              <a href="mailto:nalliakshaykumar@gmail.com" className="px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-xl shadow-xl hover:-translate-y-1 transition-all">
                 Send an Email
               </a>
               <button className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold rounded-xl backdrop-blur-md transition-all">
