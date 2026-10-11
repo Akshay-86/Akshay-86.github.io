@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import GitHubHeatmap from "./GitHubHeatmap";
+import {
+  PERSONAL_INFO,
+  SKILLS_DATA,
+  EXPERIENCE_DATA,
+  ACHIEVEMENTS_DATA,
+} from "@/data/portfolioData";
 
 // SHA-256 hash function using Web Crypto API
 async function sha256(message) {
@@ -36,7 +43,9 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
   const ALL_COMMANDS = [
     "help", "clear", "whoami", "date", "ls", "cd", "cat",
     "about", "skills", "experience", "achievements", "contact",
-    "projects", "fetch", "theme", "style", "enable", "refresh"
+    "heatmap", "activity",
+    "projects", "releases", "download", "apk", "resume", "fetch",
+    "theme", "style", "enable", "refresh"
   ];
   const ADMIN_COMMANDS = ["add project", "edit project", "delete project", "passwd", "list-local"];
   const CAT_FILES = ["about.txt", "skills.json", "experience.log", "achievements.dat", "contact.cfg"];
@@ -102,7 +111,7 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
       if (matches.length === 1) {
         const cmd = matches[0];
         // Commands that expect arguments get a trailing space
-        const needsArgs = ["cd", "cat", "theme", "style", "enable", "add", "edit", "delete"].includes(cmd);
+        const needsArgs = ["cd", "cat", "theme", "style", "enable", "add", "edit", "delete", "download", "apk"].includes(cmd);
         return needsArgs ? `${cmd} ` : cmd;
       }
 
@@ -123,6 +132,24 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
     if (parts.length === 2) {
       const cmd = parts[0].toLowerCase();
       const partial = parts[1].toLowerCase();
+
+      if (cmd === "download" || cmd === "apk") {
+        const releaseProjNames = allProjects.filter(p => p.latestRelease).map(p => p.name);
+        const candidates = ["resume", ...releaseProjNames];
+        const matches = candidates.filter(o => o.toLowerCase().startsWith(partial));
+        if (matches.length === 1) return `${cmd} ${matches[0]}`;
+        if (matches.length > 1) {
+          setHistory(prev => [...prev, {
+            type: "output", content: (
+              <div className="flex flex-wrap gap-3">
+                {matches.map(m => <span key={m} className="text-blue-400 dark:text-blue-300">{m}</span>)}
+              </div>
+            )
+          }]);
+          setShouldScroll(true);
+        }
+        return currentInput;
+      }
 
       if (cmd === "cat") {
         const matches = CAT_FILES.filter(f => f.startsWith(partial));
@@ -667,12 +694,16 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">whoami</td><td>Display current user</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">date</td><td>Display current date/time</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">projects</td><td>List all GitHub repos</td></tr>
+                <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">releases</td><td>List repos with downloadable releases</td></tr>
+                <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">download</td><td>[name] - Download APK / release asset</td></tr>
+                <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">resume</td><td>Download Akshay&apos;s resume (PDF)</td></tr>
                 <tr><td colSpan="2" className="pt-2 text-yellow-600 dark:text-yellow-400 font-bold">Navigation:</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">about</td><td>View about info</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">skills</td><td>View technical skills</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">experience</td><td>View experience</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">achievements</td><td>View achievements</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">contact</td><td>View contact info</td></tr>
+                <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">heatmap</td><td>Show GitHub contribution activity</td></tr>
                 <tr><td colSpan="2" className="pt-2 text-yellow-600 dark:text-yellow-400 font-bold">Settings:</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">theme</td><td>[dark|light] - Switch theme</td></tr>
                 <tr><td className="text-blue-600 dark:text-blue-400 pr-4 font-bold align-top">style</td><td>[name] - Switch UI style</td></tr>
@@ -870,56 +901,48 @@ export default function TerminalUI({ publicProjects, privateProjects, controls }
         } else if (file === "about.txt") {
           output = (
             <div className="text-green-600 dark:text-green-300 whitespace-pre-wrap break-words">
-              {`Hello, I am Akshay.\nComputer Science & Engineering undergraduate at SRKR Engineering College (Lateral Entry), with a Diploma in CME from Andhra Polytechnic, Kakinada (2023–2026).\n\nMy current craft is native Android application development using Kotlin and Java. Long term, I am drawn to systems-level engineering just above the hardware layer — striving toward open-source contributions to the Linux kernel.`}
+              {`Hello, I am ${PERSONAL_INFO.fullName} (${PERSONAL_INFO.name}).\n${PERSONAL_INFO.aboutParagraphs.join("\n\n")}`}
             </div>
           );
         } else if (file === "skills.json") {
           output = (
             <div className="text-yellow-600 dark:text-yellow-300 whitespace-pre-wrap break-words">
-              {JSON.stringify({
-                mobile_and_native: ["Kotlin", "Java", "Android Studio", "Android SDK"],
-                core_and_systems: ["Python", "C", "Systems Concepts"],
-                databases_and_cloud: ["MariaDB", "MySQL", "Firebase Firestore", "Google Drive API"],
-                tools_and_web: ["Git", "GitHub", "Basic Web (HTML/CSS/PHP)", "Next.js / Tailwind (AI)"]
-              }, null, 2)}
+              {JSON.stringify(
+                Object.fromEntries(
+                  SKILLS_DATA.map((s) => [s.category.toLowerCase().replace(/[^a-z0-9]/g, "_"), s.tools])
+                ),
+                null,
+                2
+              )}
             </div>
           );
         } else if (file === "experience.log") {
           output = (
             <div className="text-cyan-600 dark:text-cyan-300 whitespace-pre-wrap break-words">
-              {`[2026 - PRESENT] B.Tech in CSE (2nd Year) @ SRKR Engineering College, Bhimavaram
-  → Lateral entry undergraduate building on core computing fundamentals, algorithms, and systems architecture.
-
-[2026] Industrial Internship Trainee @ Bhairav Robotics, Kakinada
-  → Completed hands-on software development training, project workflows, and applied programming practice.
-
-[2023 - 2026] Diploma in Computer Engineering (CME) @ Andhra Polytechnic, Kakinada
-  → Built strong foundations in programming fundamentals, data structures, relational databases, and application development.`}
+              {EXPERIENCE_DATA.map(
+                (e) => `[${e.period}] ${e.role} @ ${e.company}\n  → ${e.desc}`
+              ).join("\n\n")}
             </div>
           );
         } else if (file === "achievements.dat") {
           output = (
             <div className="text-yellow-600 dark:text-yellow-300 whitespace-pre-wrap break-words">
-              {`🐧 The Linux Quest (Ultimate Mission)
-  → Dedicated to giving back to the global open-source community, with the ultimate dream of landing a contribution in the Linux kernel.
-
-⚡ Native App Architecture
-  → Architected standalone native Android systems (like Mueso) with background media streaming, automated backup pipelines, and custom local storage.
-
-🏆 Industrial Internship Certification
-  → Awarded certificate of completion for final-semester industrial software development training at Bhairav Robotics, Kakinada (2026).`}
+              {ACHIEVEMENTS_DATA.map(
+                (a) => `${a.icon} ${a.title} [${a.tag}]\n  → ${a.desc}`
+              ).join("\n\n")}
             </div>
           );
         } else if (file === "contact.cfg") {
           output = (
             <div className="text-green-600 dark:text-green-300 whitespace-pre-wrap break-words">
               {`[contact]
-email      = nalliakshaykumar@gmail.com
-github     = https://github.com/Akshay-86
-linkedin   = https://www.linkedin.com/in/nalliakshaykumar/
-instagram  = https://www.instagram.com/mr_mirk_rex
+email      = ${PERSONAL_INFO.contact.email}
+github     = ${PERSONAL_INFO.contact.github}
+linkedin   = ${PERSONAL_INFO.contact.linkedin}
+instagram  = ${PERSONAL_INFO.contact.instagram}
+resume     = ${PERSONAL_INFO.contact.resumeUrl}
 
-STATUS: Open to opportunities`}
+STATUS: Open to high-impact systems & Android engineering opportunities`}
             </div>
           );
         } else {
@@ -930,35 +953,54 @@ STATUS: Open to opportunities`}
       case "about":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Loading user_profile.sys...\n> CSE Undergrad (2nd Year, Lateral Entry) @ SRKR Engineering College | Diploma in CME @ Andhra Polytechnic (2023-2026).\n> Primary craft: Native Android app engineering (Kotlin, Java, Android Studio, MariaDB, MySQL, Firebase, Google Drive API).\n> Long-term mission: Systems engineering just above the hardware layer & landing an upstream contribution to the Linux kernel."}
+            {`> Loading user_profile.sys...\n> ${PERSONAL_INFO.tagline}\n> ${PERSONAL_INFO.aboutParagraphs.join("\n> ")}`}
           </div>
         );
         break;
+
       case "skills":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Scanning system capabilities...\n> MOBILE & NATIVE: Kotlin, Java, Android Studio, Android SDK\n> CORE & SYSTEMS: Python, C, Systems Concepts\n> DATABASES & CLOUD: MariaDB, MySQL, Firebase Firestore, Google Drive API\n> TOOLS & WEB: Git, GitHub, Basic Web (HTML/CSS/PHP), Next.js / Tailwind (AI)"}
+            {`> Scanning system capabilities...\n` +
+              SKILLS_DATA.map((s) => `> ${s.category.toUpperCase()}: ${s.tools.join(", ")}`).join("\n")}
           </div>
         );
         break;
+
       case "experience":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Fetching career_logs.dat...\n> [2026 - PRESENT] B.Tech in CSE (2nd Year) @ SRKR Engineering College, Bhimavaram\n> [2026] Industrial Internship Trainee @ Bhairav Robotics, Kakinada\n> [2023 - 2026] Diploma in Computer Engineering (CME) @ Andhra Polytechnic, Kakinada"}
+            {`> Fetching career_logs.dat...\n` +
+              EXPERIENCE_DATA.map((e) => `> [${e.period}] ${e.role} @ ${e.company}`).join("\n")}
           </div>
         );
         break;
+
       case "achievements":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Decrypting trophies.bin...\n> 🐧 The Linux Quest: Dedicated to open-source and landing an upstream contribution to the Linux kernel.\n> ⚡ Native App Architecture: Built high-performance Android systems (Mueso) with background streaming & backup pipelines.\n> 🏆 Industrial Internship Certification: Completed final-semester industrial software training (2026)."}
+            {`> Decrypting trophies.bin...\n` +
+              ACHIEVEMENTS_DATA.map((a) => `> ${a.icon} ${a.title}: ${a.desc}`).join("\n")}
           </div>
         );
         break;
+
       case "contact":
         output = (
           <div className="whitespace-pre-wrap break-words">
-            {"> Loading contact.cfg...\n> Email: nalliakshaykumar@gmail.com\n> GitHub: https://github.com/Akshay-86\n> LinkedIn: https://www.linkedin.com/in/nalliakshaykumar/\n> Instagram: https://www.instagram.com/mr_mirk_rex\n> Status: Open to opportunities"}
+            {`> Loading contact.cfg...\n> Email: ${PERSONAL_INFO.contact.email}\n> GitHub: ${PERSONAL_INFO.contact.github}\n> LinkedIn: ${PERSONAL_INFO.contact.linkedin}\n> Instagram: ${PERSONAL_INFO.contact.instagram}\n> Resume: ${PERSONAL_INFO.contact.resumeUrl}`}
+          </div>
+        );
+        break;
+
+      case "heatmap":
+      case "activity":
+        output = (
+          <div className="my-3 max-w-4xl">
+            <div className="text-green-600 dark:text-green-400 font-bold mb-2">
+              📊 Live GitHub Contribution Grid:
+            </div>
+            <GitHubHeatmap username={PERSONAL_INFO.contact.githubUsername} />
           </div>
         );
         break;
@@ -970,9 +1012,12 @@ STATUS: Open to opportunities`}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
               {allProjects.map((repo) => (
                 <div key={repo.id} className="border border-green-700 dark:border-green-800 p-2 rounded bg-green-50 dark:bg-black/50">
-                  <div className="font-bold text-green-700 dark:text-green-400">
-                    {repo.name} {repo.private && <span className="text-red-500 dark:text-red-400 text-xs">[PRIVATE]</span>}
-                    {repo.isLocal && <span className="text-purple-500 dark:text-purple-400 text-xs ml-1">[{(repo.localTag || "LOCAL").toUpperCase()}]</span>}
+                  <div className="font-bold text-green-700 dark:text-green-400 flex items-center gap-2 flex-wrap">
+                    <span>{repo.name}</span>
+                    {repo.private && <span className="text-red-500 dark:text-red-400 text-xs">[PRIVATE]</span>}
+                    {repo.isLocal && <span className="text-purple-500 dark:text-purple-400 text-xs">[{(repo.localTag || "LOCAL").toUpperCase()}]</span>}
+                    {repo.version && <span className="text-emerald-600 dark:text-emerald-400 text-xs font-mono">[{repo.version}]</span>}
+                    {repo.latestRelease?.hasApk && <span className="text-cyan-600 dark:text-cyan-400 text-xs font-bold">[APK AVAILABLE]</span>}
                   </div>
                   <div className="text-slate-600 dark:text-gray-300 text-sm">{repo.description || "No description."}</div>
                   <div className="text-yellow-600 dark:text-yellow-500 text-xs mt-1">
@@ -985,6 +1030,100 @@ STATUS: Open to opportunities`}
           </div>
         );
         break;
+
+      case "releases": {
+        const reposWithReleases = allProjects.filter((p) => p.latestRelease);
+        if (reposWithReleases.length === 0) {
+          output = <div className="text-yellow-600 dark:text-yellow-400">No projects currently have published releases.</div>;
+        } else {
+          output = (
+            <div className="flex flex-col gap-3">
+              <div className="text-green-600 dark:text-green-400 font-bold">📦 Published Releases & Direct Downloads:</div>
+              <div className="flex flex-col gap-2">
+                {reposWithReleases.map((p) => (
+                  <div key={p.id} className="border border-green-700 dark:border-green-800/60 p-2.5 rounded bg-green-50/50 dark:bg-green-950/20">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-green-700 dark:text-green-400 text-base">{p.name}</span>
+                      <span className="font-mono text-xs bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 px-2 py-0.5 rounded font-bold">{p.version}</span>
+                      {p.latestRelease.hasApk && <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-300 dark:border-cyan-800/40">APK AVAILABLE</span>}
+                    </div>
+                    {p.latestRelease.primaryAsset && (
+                      <div className="mt-1 text-xs text-slate-700 dark:text-slate-300">
+                        Primary Asset: <span className="font-mono text-yellow-600 dark:text-yellow-400 font-bold">{p.latestRelease.primaryAsset.name}</span> ({p.latestRelease.primaryAsset.sizeFormatted})
+                      </div>
+                    )}
+                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      Type <span className="text-cyan-600 dark:text-cyan-400 font-bold font-mono">download {p.name}</span> to download directly.
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        break;
+      }
+
+      case "apk":
+      case "download": {
+        const targetProj = args[1]?.toLowerCase();
+        if (!targetProj) {
+          const availableNames = allProjects.filter((p) => p.latestRelease).map((p) => p.name).join(", ");
+          output = (
+            <div>
+              <div className="text-yellow-600 dark:text-yellow-400">Usage: download &lt;project-name&gt;</div>
+              <div className="text-slate-500 dark:text-slate-400 text-xs mt-1">Available releases: {availableNames || "none"} (or &apos;download resume&apos;)</div>
+            </div>
+          );
+        } else if (targetProj === "resume") {
+          const link = document.createElement("a");
+          link.href = "/resume.pdf";
+          link.download = "Akshay_Resume.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          output = <span className="text-green-600 dark:text-green-400">✓ Initiating download for Akshay&apos;s Resume (PDF)...</span>;
+        } else {
+          const match = allProjects.find((p) => p.name.toLowerCase() === targetProj);
+          if (!match) {
+            output = <span className="text-red-500 dark:text-red-400">Project &quot;{args[1]}&quot; not found. Type &apos;projects&apos; to view all repositories.</span>;
+          } else if (!match.latestRelease || !match.latestRelease.primaryAsset) {
+            output = (
+              <div>
+                <span className="text-yellow-600 dark:text-yellow-400">Project &quot;{match.name}&quot; does not have downloadable release assets.</span>
+                <div className="text-slate-500 dark:text-slate-400 text-xs mt-1">Explore repository: <a href={match.html_url} target="_blank" rel="noreferrer" className="text-blue-500 underline">{match.html_url}</a></div>
+              </div>
+            );
+          } else {
+            const asset = match.latestRelease.primaryAsset;
+            const link = document.createElement("a");
+            link.href = asset.downloadUrl;
+            link.download = asset.name;
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            output = (
+              <div className="text-green-600 dark:text-green-400">
+                <div>✓ Initiating download for <span className="font-bold text-slate-900 dark:text-white">{match.name} {match.version}</span>...</div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 font-mono mt-1">Asset: {asset.name} ({asset.sizeFormatted})</div>
+              </div>
+            );
+          }
+        }
+        break;
+      }
+
+      case "resume": {
+        const rLink = document.createElement("a");
+        rLink.href = "/resume.pdf";
+        rLink.download = "Akshay_Resume.pdf";
+        document.body.appendChild(rLink);
+        rLink.click();
+        document.body.removeChild(rLink);
+        output = <span className="text-green-600 dark:text-green-400">✓ Initiating download for Akshay&apos;s Resume (PDF)...</span>;
+        break;
+      }
 
       case "list-local":
         if (!isAdmin) {

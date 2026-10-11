@@ -16,6 +16,7 @@ import {
   getAdminHash,
   setAdminHash,
 } from "../lib/firebase";
+import { PROJECT_METADATA_OVERRIDES } from "@/data/portfolioData";
 
 export default function PortfolioRenderer({ publicProjects, privateProjects }) {
   const [currentStyle, setCurrentStyle] = useState("minimal");
@@ -46,9 +47,27 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
           const merged = await Promise.all(
             fetchedRepos.map(async (repo) => {
               const existing = initialMap.get(repo.id) || initialMap.get(repo.name);
+              const meta = PROJECT_METADATA_OVERRIDES[repo.name];
+              const activeRelease = existing?.latestRelease || meta?.defaultRelease || null;
+              const enrichedBase = {
+                customTitle: meta?.customTitle || existing?.customTitle,
+                badge: meta?.badge || existing?.badge,
+                category: meta?.category || existing?.category || "other",
+                summary: meta?.summary || existing?.summary,
+                techStack: meta?.techStack || existing?.techStack,
+                accent: meta?.accent || existing?.accent,
+                latestRelease: activeRelease,
+                version: existing?.version || activeRelease?.version || null,
+                previews: existing?.previews,
+              };
+
               const isUnchanged = existing && existing.recentCommits && existing.recentCommits.length > 0 && existing.pushed_at === repo.pushed_at;
               if (isUnchanged) {
-                return { ...repo, recentCommits: existing.recentCommits };
+                return {
+                  ...repo,
+                  ...enrichedBase,
+                  recentCommits: existing.recentCommits,
+                };
               }
               try {
                 const isFork = repo.fork;
@@ -64,14 +83,26 @@ export default function PortfolioRenderer({ publicProjects, privateProjects }) {
                         c.author?.login?.toLowerCase() === "akshay-86" ||
                         c.committer?.login?.toLowerCase() === "akshay-86"
                     );
-                    return { ...repo, recentCommits: userCommits.slice(0, 4) };
+                    return {
+                      ...repo,
+                      ...enrichedBase,
+                      recentCommits: userCommits.slice(0, 4),
+                    };
                   }
-                  return { ...repo, recentCommits: commits };
+                  return {
+                    ...repo,
+                    ...enrichedBase,
+                    recentCommits: commits,
+                  };
                 }
               } catch (e) {
                 // Silently ignore commit fetch failures for individual repos
               }
-              return { ...repo, recentCommits: [] };
+              return {
+                ...repo,
+                ...enrichedBase,
+                recentCommits: existing?.recentCommits || [],
+              };
             })
           );
 
